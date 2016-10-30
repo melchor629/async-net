@@ -1,0 +1,36 @@
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+
+version = '1.0.0'
+group = 'me.melchor9000'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    compile 'io.netty:netty-common:4.1.+'
+    compile 'io.netty:netty-buffer:4.1.+'
+    compile 'io.netty:netty-transport:4.1.+'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = [ 'src' ]
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': rootProject.name,
+                   'Implementation-Version': version
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_7

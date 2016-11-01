@@ -136,7 +136,9 @@ public abstract class Socket implements AutoCloseable {
 
     /**
      * Binds the socket to a random port and connects to the remote endpoint as
-     * {@code hostName} and {@code port}.
+     * {@code hostName} and {@code port}.<br>
+     * On <b>Android 4.0 or higher</b>, this method cannot be called from the
+     * UI Thread.
      * @param hostName domain or IP address of the remote endpoint
      * @param port port of the remote endpoint
      * @throws InterruptedException When this {@link Thread} is interrupted while waiting to connect

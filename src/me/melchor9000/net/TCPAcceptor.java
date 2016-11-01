@@ -88,6 +88,7 @@ public class TCPAcceptor extends Acceptor<TCPSocket> {
 
     @Override
     public Future<TCPSocket> acceptAsync() {
+        checkSocketCreated("acceptAsync");
         FutureImpl<TCPSocket> a = new FutureImpl<>();
         if(channel != null) {
             if(sockets.isEmpty()) accepts.add(a);

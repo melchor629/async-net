@@ -55,6 +55,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * @return a {@link Future} for the close task
      */
     public Future<Void> closeAsync() {
+        checkSocketCreated("closeAsync");
         return new NettyFuture<>(channel.close());
     }
 
@@ -62,6 +63,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * Waits until the acceptor is closed. Cannot be interrupted.
      */
     public void waitForClose() {
+        checkSocketCreated("waitForClose");
         channel.closeFuture().syncUninterruptibly();
     }
 
@@ -70,6 +72,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * @return a {@link Future} with the close task
      */
     public Future<Void> onClose() {
+        checkSocketCreated("onClose");
         return new NettyFuture<>(channel.closeFuture());
     }
 
@@ -172,5 +175,14 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
             bootstrap.option(option, value);
         else
             throw new IllegalStateException("Cannot set child options when the server is listening");
+    }
+
+    /**
+     * Call this method to check if the socket is created, if it's not,
+     * then throws a {@link SocketNotCreated} exception.
+     * @param method method that was called
+     */
+    protected void checkSocketCreated(String method) {
+        if(channel == null) throw new SocketNotCreated("Cannot call " + method + " before creating the Socket", null);
     }
 }

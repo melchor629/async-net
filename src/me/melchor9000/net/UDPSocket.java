@@ -147,6 +147,7 @@ public class UDPSocket extends Socket {
     }
 
     public Future<Void> sendAsyncTo(ByteBuf data, final int bytes, InetSocketAddress endpoint) {
+        checkSocketCreated("sendAsyncTo");
         final ByteBuf buff = channel.alloc().directBuffer(bytes).retain();
         buff.writeBytes(data, bytes);
         return new NettyFuture<>(channel.writeAndFlush(new DatagramPacket(buff, endpoint)).addListener(new ChannelFutureListener() {
@@ -167,6 +168,7 @@ public class UDPSocket extends Socket {
     }
 
     public Packet receiveFrom(ByteBuf data, int bytes) throws Throwable {
+        checkSocketCreated("receiveFrom");
         if(canReadDirectly) {
             if(receivedPackets.peek().content().readableBytes() > bytes)
                 throw new NotEnoughSpaceForPacketException("Cannot write the message into the ByteBuf",
@@ -200,6 +202,7 @@ public class UDPSocket extends Socket {
     }
 
     public Future<Packet> receiveAsyncFrom(ByteBuf data, int bytes) {
+        checkSocketCreated("receiveAsyncFrom");
         FutureImpl<Packet> future = new FutureImpl<>();
         channel.read();
         readOperations.add(new ReadOperation(future, bytes, data));

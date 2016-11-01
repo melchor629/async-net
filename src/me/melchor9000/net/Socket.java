@@ -60,6 +60,7 @@ public abstract class Socket implements AutoCloseable {
      */
     @Override
     public void close() {
+        checkSocketCreated("close");
         channel.close().syncUninterruptibly();
     }
 
@@ -69,6 +70,7 @@ public abstract class Socket implements AutoCloseable {
      * @return Future about the task
      */
     public Future<Void> closeAsync() {
+        checkSocketCreated("closeAsync");
         return new NettyFuture<>(channel.close());
     }
 
@@ -200,6 +202,7 @@ public abstract class Socket implements AutoCloseable {
      * @throws InterruptedException If there's an interruption while sending the data
      */
     public long send(ByteBuf data, int bytes) throws InterruptedException {
+        checkSocketCreated("send");
         ByteBuf buff = ByteBufAllocator.DEFAULT.buffer(bytes).retain();
         buff.writeBytes(data, 0, bytes);
         channel.writeAndFlush(buff).sync();
@@ -219,6 +222,7 @@ public abstract class Socket implements AutoCloseable {
      * @return a {@link Future} representing this task
      */
     public Future<Void> sendAsync(ByteBuf data, final int bytes) {
+        checkSocketCreated("sendAsync");
         final ByteBuf buff = ByteBufAllocator.DEFAULT.directBuffer(bytes).retain();
         buff.writeBytes(data, 0, bytes);
         return new NettyFuture<>(channel.writeAndFlush(buff).addListener(new ChannelFutureListener() {
@@ -318,7 +322,7 @@ public abstract class Socket implements AutoCloseable {
      * @return true if the socket is open, false if it's closed
      */
     public boolean isOpen() {
-        return channel.isOpen();
+        return channel != null && channel.isOpen();
     }
 
     /**
@@ -355,5 +359,14 @@ public abstract class Socket implements AutoCloseable {
      */
     protected void fireReceivedData() throws Exception {
         for(Callback<Socket> cbk : readNotifications) cbk.call(this);
+    }
+
+    /**
+     * Call this method to check if the socket is created, if it's not,
+     * then throws a {@link SocketNotCreated} exception.
+     * @param method method that was called
+     */
+    protected void checkSocketCreated(String method) {
+        if(channel == null) throw new SocketNotCreated("Cannot call " + method + " before creating the Socket", this);
     }
 }

@@ -120,11 +120,13 @@ public class TCPSocket extends Socket {
 
     @Override
     public long receive(ByteBuf data, int bytes) throws Throwable {
+        checkSocketCreated("receive");
         return isClosed ? -1 : receiveAsync(data, bytes).getValue();
     }
 
     @Override
     public Future<Long> receiveAsync(ByteBuf data, int bytes) {
+        checkSocketCreated("receiveAsync");
         final FutureImpl<Long> future = new FutureImpl<>();
         if(!isClosed) {
             readOperations.add(new ReadOperation(future, bytes, data));
@@ -157,6 +159,7 @@ public class TCPSocket extends Socket {
      * {@link java.io.IOException}.
      */
     public void shutdownOutput() {
+        checkSocketCreated("shutdownOutput");
         socket.shutdownOutput().syncUninterruptibly();
     }
 
@@ -167,6 +170,7 @@ public class TCPSocket extends Socket {
      * @return {@link Future} of this task
      */
     public Future<Void> shutdownOutputAsync() {
+        checkSocketCreated("shutdownOutputAsync");
         return new NettyFuture<>(socket.shutdownOutput());
     }
 
@@ -177,6 +181,7 @@ public class TCPSocket extends Socket {
      * {@link java.io.IOException}.
      */
     public void shutdownInput() {
+        checkSocketCreated("shutdownInput");
         socket.shutdownInput().syncUninterruptibly();
     }
 
@@ -188,6 +193,7 @@ public class TCPSocket extends Socket {
      * @return {@link Future} of this task
      */
     public Future<Void> shutdownInputAsync() {
+        checkSocketCreated("shutdownInputAsync");
         return new NettyFuture<>(socket.shutdownInput());
     }
 
@@ -198,6 +204,7 @@ public class TCPSocket extends Socket {
      * @see #shutdownOutput() About shutdown the Output stream
      */
     public void shutdown() {
+        checkSocketCreated("shutdown");
         socket.shutdown().syncUninterruptibly();
     }
 
@@ -209,6 +216,7 @@ public class TCPSocket extends Socket {
      * @see #shutdownOutputAsync() About shutdown the Output stream
      */
     public Future<Void> shutdownAsync() {
+        checkSocketCreated("shutdownAsync");
         return new NettyFuture<>(socket.shutdown());
     }
 
@@ -233,6 +241,7 @@ public class TCPSocket extends Socket {
      * @return a {@link Future} for the task
      */
     public Future<Void> onClose() {
+        checkSocketCreated("onClose");
         return new NettyFuture<>(socket.closeFuture());
     }
 
@@ -322,11 +331,13 @@ public class TCPSocket extends Socket {
 
     private void channelCreated() {
         socket = (SocketChannel) channel;
-        socket.closeFuture().addListener(new GenericFutureListener<io.netty.util.concurrent.Future<? super Void>>() {
-            @Override
-            public void operationComplete(io.netty.util.concurrent.Future<? super Void> future) throws Exception {
-                isClosed = true;
-            }
-        });
+        if(socket != null) {
+            socket.closeFuture().addListener(new GenericFutureListener<io.netty.util.concurrent.Future<? super Void>>() {
+                @Override
+                public void operationComplete(io.netty.util.concurrent.Future<? super Void> future) throws Exception {
+                    isClosed = true;
+                }
+            });
+        }
     }
 }

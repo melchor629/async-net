@@ -21,6 +21,7 @@ package me.melchor9000.net;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -283,6 +284,32 @@ public abstract class Socket implements AutoCloseable {
      */
     public long send(ByteBuf data) throws InterruptedException {
         return send(data, data.readableBytes());
+    }
+
+    /**
+     * Sends the contents of the {@link String} using the default platform Charset,
+     * without any extra characters. Depending on the implementation and its options,
+     * is possible that the data could not be sent in the moment, or only a portion of
+     * it is sent. That is an asynchronous operation, so it returns a {@link Future}
+     * about this task.
+     * @param data the {@link String} to send
+     * @return a {@link Future} representing the task
+     */
+    public Future<Void> sendAsync(String data) {
+        return sendAsync(Unpooled.wrappedBuffer(data.getBytes()));
+    }
+
+    /**
+     * Sends the contents of the {@link String} using the default platform Charset,
+     * without any extra characters. Depending on the implementation and its options,
+     * is possible that the data could not be sent in the moment, or only a portion of
+     * it is sent.
+     * @param data the {@link String} to send
+     * @return number of bytes sent
+     * @throws InterruptedException if the send operation is interrupted
+     */
+    public long send(String data) throws InterruptedException {
+        return send(Unpooled.wrappedBuffer(data.getBytes()));
     }
 
     /**

@@ -19,6 +19,7 @@
 package me.melchor9000.net;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
@@ -218,6 +219,93 @@ public class UDPSocket extends Socket {
 
     public Future<Packet> receiveAsyncFrom(ByteBuf data) {
         return receiveAsyncFrom(data, data.writableBytes());
+    }
+
+    public Future<Void> sendAsync(Serializable data) {
+        return sendAsync(data.toByteBuf());
+    }
+
+    public long send(Serializable data) throws InterruptedException {
+        return send(data.toByteBuf());
+    }
+
+    public Future<Void> sendAsyncTo(String data, InetSocketAddress remoteEndpoint) {
+        return sendAsyncTo(Unpooled.wrappedBuffer(data.getBytes()), remoteEndpoint);
+    }
+
+    public Future<Void> sendAsyncTo(Serializable data, InetSocketAddress remoteEndpoint) {
+        return sendAsyncTo(data.toByteBuf(), remoteEndpoint);
+    }
+
+    public long sendTo(String data, InetSocketAddress remoteEndpoint) throws InterruptedException {
+        return sendTo(Unpooled.wrappedBuffer(data.getBytes()), remoteEndpoint);
+    }
+
+    public long sendTo(Serializable data, InetSocketAddress remoteEndpoint) throws InterruptedException {
+        return sendTo(data.toByteBuf(), remoteEndpoint);
+    }
+
+    public <Type extends Serializable> Future<Type> receiveAsync(final Type data) {
+        final ByteBuf b = Unpooled.buffer(1500).retain();
+        final FutureImpl<Type> future = new FutureImpl<>();
+        receiveAsync(b).whenDone(new Callback<Future<Long>>() {
+            @Override
+            public void call(Future<Long> arg) throws Exception {
+                try {
+                    if(arg.isSuccessful()) {
+                        try {
+                            data.fromByteBuf(b);
+                        } catch(DataNotRepresentsObject e) {
+                            future.postError(e);
+                        }
+                        future.postSuccess(data);
+                    } else {
+                        future.postError(arg.cause());
+                    }
+                } finally {
+                    b.release();
+                }
+            }
+        });
+        return future;
+    }
+
+    public <Type extends Serializable> Future<Packet> receiveAsyncFrom(final Type data) {
+        final ByteBuf b = Unpooled.buffer(1500).retain();
+        final FutureImpl<Packet> future = new FutureImpl<>();
+        receiveAsyncFrom(b).whenDone(new Callback<Future<Packet>>() {
+            @Override
+            public void call(Future<Packet> arg) throws Exception {
+                try {
+                    if(arg.isSuccessful()) {
+                        try {
+                            data.fromByteBuf(b);
+                        } catch(DataNotRepresentsObject e) {
+                            future.postError(e);
+                        }
+                        future.postSuccess(arg.getValueNow());
+                    } else {
+                        future.postError(arg.cause());
+                    }
+                } finally {
+                    b.release();
+                }
+            }
+        });
+        return future;
+    }
+
+    public void receive(Serializable data) throws Throwable {
+        ByteBuf b = Unpooled.buffer(1500);
+        Packet p = receiveFrom(b);
+        data.fromByteBuf(b);
+    }
+
+    public Packet receiveFrom(Serializable data) throws Throwable {
+        ByteBuf b = Unpooled.buffer(1500);
+        Packet p = receiveFrom(b);
+        data.fromByteBuf(b);
+        return p;
     }
 
     private class ReadManager extends ChannelInboundHandlerAdapter {

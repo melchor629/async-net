@@ -31,7 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * My implementation of the Future
  */
-class FutureImpl<ReturnType> implements Future<ReturnType> {
+public class FutureImpl<ReturnType> implements Future<ReturnType> {
     private final AtomicBoolean done = new AtomicBoolean();
     private volatile boolean successful;
     private volatile boolean cancelled;
@@ -168,7 +168,7 @@ class FutureImpl<ReturnType> implements Future<ReturnType> {
         return this;
     }
 
-    void postSuccess(ReturnType result) throws Exception {
+    public void postSuccess(ReturnType result) throws Exception {
         lock.lock();
         returnValue = result;
         done.set(successful = true);
@@ -179,7 +179,7 @@ class FutureImpl<ReturnType> implements Future<ReturnType> {
         lock.unlock();
     }
 
-    void postError(Throwable cause) throws Exception {
+    public void postError(Throwable cause) throws Exception {
         lock.lock();
         this.cause = cause;
         done.set(true);
@@ -190,7 +190,7 @@ class FutureImpl<ReturnType> implements Future<ReturnType> {
         lock.unlock();
     }
 
-    void postSuccessSafe(ReturnType result) {
+    public void postSuccessSafe(ReturnType result) {
         try {
             postSuccess(result);
         } catch (Exception e) {
@@ -199,7 +199,7 @@ class FutureImpl<ReturnType> implements Future<ReturnType> {
         }
     }
 
-    void postErrorSafe(Throwable cause) {
+    public void postErrorSafe(Throwable cause) {
         try {
             postError(cause);
         } catch (Exception e) {

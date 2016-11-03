@@ -323,9 +323,7 @@ public class UDPSocket extends Socket {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            while(!readOperations.isEmpty()) {
-                readOperations.poll().cbk.postError(cause);
-            }
+            cause.printStackTrace();
         }
 
         private void checkAndSendData() throws Exception {

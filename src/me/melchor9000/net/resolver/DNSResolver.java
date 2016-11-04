@@ -111,8 +111,8 @@ public class DNSResolver implements AutoCloseable {
      * @param name domain name to resolve
      * @return an {@link Iterable} object with the IP addresses or null
      */
-    public Iterable<InetAddress> resolve(String name) throws ExecutionException, InterruptedException {
-        return resolveAsync(name).sync().getValue();
+    public Iterable<InetAddress> resolve(String name) {
+        return resolveAsync(name).sync().getValueNow();
     }
 
     @Override

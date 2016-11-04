@@ -143,6 +143,7 @@ public abstract class Socket implements AutoCloseable {
      * @param hostName domain or IP address of the remote endpoint
      * @param port port of the remote endpoint
      * @throws InterruptedException When this {@link Thread} is interrupted while waiting to connect
+     * @throws UnknownHostException If the hostName cannot be resolved
      */
     public void connect(String hostName, int port) throws UnknownHostException, InterruptedException {
         connect(InetAddress.getByName(hostName), port);
@@ -165,6 +166,7 @@ public abstract class Socket implements AutoCloseable {
      * @param hostName domain or IP address of the remote endpoint
      * @param port port of the remote endpoint
      * @return {@link Future} of the task
+     * @throws UnknownHostException If the hostName cannot be resolved
      */
     public Future<Void> connectAsync(String hostName, int port) throws UnknownHostException {
         return connectAsync(InetAddress.getByName(hostName), port);
@@ -318,6 +320,7 @@ public abstract class Socket implements AutoCloseable {
      * @param type Option to change
      * @param value New value
      * @param <T> Type of the new value for the option
+     * @return true if the option was set
      * @see ChannelOption
      */
     public <T> boolean setOption(ChannelOption<T> type, T value) {
@@ -341,7 +344,7 @@ public abstract class Socket implements AutoCloseable {
      * Gets the {@link SocketAddress} of the local socket, or returns
      * {@code null} if the socket is not created yet using one of the
      * connect or bind methods.
-     * @return
+     * @return local endpoint
      */
     public SocketAddress localEndpoint() {
         return channel != null ? channel.localAddress() : null;

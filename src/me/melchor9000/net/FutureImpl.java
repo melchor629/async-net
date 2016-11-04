@@ -117,7 +117,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
             @Override
             public void call() {
                 cancel(true);
-                postErrorSafe(new CancellationException("Task was cancelled by a timeout"));
+                postError(new CancellationException("Task was cancelled by a timeout"));
             }
         }, milliseconds);
         return this;
@@ -197,7 +197,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         return this;
     }
 
-    public void postSuccess(ReturnType result) throws Exception {
+    public void postSuccess(ReturnType result) {
         lock.lock();
         if(timeoutFuture != null) timeoutFuture.cancel(false);
         returnValue = result;
@@ -209,7 +209,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         lock.unlock();
     }
 
-    public void postError(Throwable cause) throws Exception {
+    public void postError(Throwable cause) {
         lock.lock();
         if(timeoutFuture != null) timeoutFuture.cancel(false);
         this.cause = cause;
@@ -221,27 +221,14 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         lock.unlock();
     }
 
-    public void postSuccessSafe(ReturnType result) {
-        try {
-            postSuccess(result);
-        } catch (Exception e) {
-            System.out.println("Caught an exception on Future whenDone() callback");
-            e.printStackTrace();
-        }
-    }
-
-    public void postErrorSafe(Throwable cause) {
-        try {
-            postError(cause);
-        } catch (Exception e) {
-            System.out.println("Caught an exception on Future whenDone() callback");
-            e.printStackTrace();
-        }
-    }
-
-    private void executeListeners() throws Exception {
+    private void executeListeners() {
         for(Callback<Future<ReturnType>> cbk : listeners) {
-            cbk.call(this);
+            try {
+                cbk.call(this);
+            } catch(Throwable t) {
+                System.err.println("Caught a Throwable inside a whenDone() Callback");
+                t.printStackTrace();
+            }
         }
     }
 }

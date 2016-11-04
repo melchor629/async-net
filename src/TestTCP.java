@@ -107,7 +107,7 @@ public class TestTCP {
                         final ByteBuf b = ByteBufAllocator.DEFAULT.buffer(16 * 1024).retain();
                         socket.onClose().whenDone(new Callback<Future<Void>>() {
                             @Override
-                            public void call(Future<Void> arg) throws Exception {
+                            public void call(Future<Void> arg) {
                                 direccion.setEnabled(true);
 
                                 long spent = System.currentTimeMillis() - start;
@@ -124,7 +124,7 @@ public class TestTCP {
                                 bytesSentLabel.setText("Bytes Sent: "+socket.sendBytes()+"B");
                                 final Callback<Future<Long>> cbk = new Callback<Future<Long>>() {
                                     @Override
-                                    public void call(Future<Long> arg) throws Exception {
+                                    public void call(Future<Long> arg) {
                                         bytesReceivedLabel.setText("Bytes Received: "+socket.receivedBytes()+"B");
                                         if(!arg.isSuccessful()) return;
 

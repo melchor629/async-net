@@ -202,7 +202,7 @@ public class UDPSocket extends Socket {
 
         leFuture[0] = receiveAsyncFrom(data, bytes).whenDone(new Callback<Future<Packet>>() {
             @Override
-            public void call(Future<Packet> arg) throws Exception {
+            public void call(Future<Packet> arg) {
                 if(arg.isSuccessful()) future.postSuccess((long) arg.getValueNow().bytes);
                 else future.postError(arg.cause());
             }
@@ -272,7 +272,7 @@ public class UDPSocket extends Socket {
 
         leFuture[0] = receiveAsync(b).whenDone(new Callback<Future<Long>>() {
             @Override
-            public void call(Future<Long> arg) throws Exception {
+            public void call(Future<Long> arg) {
                 try {
                     if(arg.isSuccessful()) {
                         try {
@@ -304,7 +304,7 @@ public class UDPSocket extends Socket {
 
         leFuture[0] = receiveAsyncFrom(b).whenDone(new Callback<Future<Packet>>() {
             @Override
-            public void call(Future<Packet> arg) throws Exception {
+            public void call(Future<Packet> arg) {
                 try {
                     if(arg.isSuccessful()) {
                         try {

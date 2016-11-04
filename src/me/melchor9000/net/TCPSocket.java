@@ -262,7 +262,7 @@ public class TCPSocket extends Socket {
     public Future<Void> closeAsync() {
         return super.closeAsync().whenDone(new Callback<Future<Void>>() {
             @Override
-            public void call(Future<Void> arg) throws Exception {
+            public void call(Future<Void> arg) {
                 readBuffer.release();
             }
         });

@@ -32,7 +32,7 @@ public class DNSResolver implements AutoCloseable {
 
         Iterable<InetAddress> resolved = DNSResolverCache.getAddresses(name);
         if(resolved != null) {
-            future.postSuccessSafe(resolved);
+            future.postSuccess(resolved);
         } else {
             final DNSMessage message = new DNSMessage();
             final DNSMessage message4 = new DNSMessage();
@@ -58,30 +58,30 @@ public class DNSResolver implements AutoCloseable {
             final boolean hasRepeatedRequestOnlyWithIPv4[] = new boolean[1];
             final Callback<Future<Void>> sendCbk = new Callback<Future<Void>>() {
                 @Override
-                public void call(Future<Void> arg) throws Exception {
+                public void call(Future<Void> arg) {
                     if(arg.isSuccessful()) {
                         final Callback<Future<Void>> self = this;
                         final DNSMessage message2 = new DNSMessage();
                         message2.setId(tid);
                         socket.receiveAsyncFrom(message2).whenDone(new Callback<Future<UDPSocket.Packet>>() {
                             @Override
-                            public void call(Future<UDPSocket.Packet> arg) throws Exception {
+                            public void call(Future<UDPSocket.Packet> arg) {
                                 if(arg.isSuccessful()) {
                                     if(message2.getOpcode() != 0) {
                                         if(dnsServers.hasNext()) {
                                             hasRepeatedRequestOnlyWithIPv4[0] = false;
                                             socket.sendAsyncTo(message, currentServer[0] = dnsServers.next()).whenDone(self);
                                         } else {
-                                            future.postErrorSafe(new UnknownHostException(name));
+                                            future.postError(new UnknownHostException(name));
                                         }
                                     } else {
                                         addAllRecords(name, message2.getAnswers());
                                         addAllRecords(name, message2.getAuthorities());
                                         addAllRecords(name, message2.getAdditionals());
-                                        future.postSuccessSafe(DNSResolverCache.getAddresses(name));
+                                        future.postSuccess(DNSResolverCache.getAddresses(name));
                                     }
                                 } else if(!(arg.cause() instanceof CancellationException)) {
-                                    future.postErrorSafe(arg.cause());
+                                    future.postError(arg.cause());
                                 } else {
                                     if(hasRepeatedRequestOnlyWithIPv4[0]) {
                                         hasRepeatedRequestOnlyWithIPv4[0] = false;
@@ -94,7 +94,7 @@ public class DNSResolver implements AutoCloseable {
                             }
                         }).setTimeout(1000);
                     } else {
-                        future.postErrorSafe(arg.cause());
+                        future.postError(arg.cause());
                     }
                 }
             };

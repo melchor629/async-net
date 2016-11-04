@@ -100,8 +100,8 @@ public class TCPAcceptor extends Acceptor<TCPSocket> {
 
         if(channel != null) {
             if(sockets.isEmpty()) accepts.add(a[0]);
-            else a[0].postSuccessSafe(sockets.poll());
-        } else a[0].postErrorSafe(new IllegalStateException("Socket is not listening"));
+            else a[0].postSuccess(sockets.poll());
+        } else a[0].postError(new IllegalStateException("Socket is not listening"));
         return a[0];
     }
 

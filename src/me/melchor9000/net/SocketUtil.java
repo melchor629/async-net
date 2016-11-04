@@ -40,7 +40,7 @@ public class SocketUtil {
         final FutureImpl<Long> future = new FutureImpl<>(socket.service, null);
         final Callback<Future<Long>> c = new Callback<Future<Long>>() {
             @Override
-            public void call(Future<Long> arg) throws Exception {
+            public void call(Future<Long> arg) {
                 if(arg.getValueNow() >= 0) {
                     read[0] -= (int) (long) arg.getValueNow();
                     if(read[0] != 0) {

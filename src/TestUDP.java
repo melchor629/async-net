@@ -55,12 +55,12 @@ public class TestUDP {
 
         socket.sendAsyncTo(message, new InetSocketAddress("192.168.1.1", 53)).whenDone(new Callback<Future<Void>>() {
             @Override
-            public void call(Future<Void> arg) throws Exception {
+            public void call(Future<Void> arg) {
                 final DNSMessage message = new DNSMessage();
                 message.setId(tid);
                 socket.receiveAsyncFrom(message).whenDone(new Callback<Future<UDPSocket.Packet>>() {
                     @Override
-                    public void call(Future<UDPSocket.Packet> arg) throws Exception {
+                    public void call(Future<UDPSocket.Packet> arg) {
                         if(!arg.isSuccessful()) {
                             arg.cause().printStackTrace();
                             System.exit(-1);

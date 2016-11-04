@@ -146,6 +146,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
             waitDone.await(millis, TimeUnit.MILLISECONDS);
             lock.unlock();
         }
+        if(!isSuccessful()) throw new ExecutionException(cause);
         return returnValue;
     }
 
@@ -164,6 +165,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         } else {
             ret = returnValue;
         }
+        if(!isSuccessful()) throw new ExecutionException(cause);
         return ret;
     }
 
@@ -174,6 +176,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
             waitDone.await();
             lock.unlock();
         }
+        if(!isSuccessful()) throw new ExecutionException(cause);
         return returnValue;
     }
 
@@ -184,6 +187,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
             waitDone.awaitUninterruptibly();
             lock.unlock();
         }
+        if(!isSuccessful()) throw new ExecutionException(cause);
         return returnValue;
     }
 
@@ -193,6 +197,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
             lock.lock();
             waitDone.awaitUninterruptibly();
             lock.unlock();
+            if(!isSuccessful()) doThrow(new ExecutionException(cause));
         }
         return this;
     }
@@ -230,5 +235,14 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
                 t.printStackTrace();
             }
         }
+    }
+
+    private void doThrow(Exception e) {
+        // http://stackoverflow.com/questions/6302015/throw-checked-exceptions
+        FutureImpl.<RuntimeException> doThrow0(e);
+    }
+
+    @SuppressWarnings("unchecked") private static <E extends Exception> void doThrow0(Exception e) throws E {
+        throw (E) e;
     }
 }

@@ -72,7 +72,7 @@ public abstract class Socket implements AutoCloseable {
      */
     public Future<Void> closeAsync() {
         checkSocketCreated("closeAsync");
-        return new NettyFuture<>(channel.close());
+        return createFuture(channel.close());
     }
 
     /**
@@ -113,7 +113,7 @@ public abstract class Socket implements AutoCloseable {
      * @return {@link Future} of the task
      */
     public Future<Void> connectAsync(SocketAddress endpoint) {
-        return new NettyFuture<>(bootstrap.connect(endpoint).addListener(new ChannelFutureListener() {
+        return createFuture(bootstrap.connect(endpoint).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 channel = future.channel();
@@ -228,7 +228,7 @@ public abstract class Socket implements AutoCloseable {
         checkSocketCreated("sendAsync");
         final ByteBuf buff = ByteBufAllocator.DEFAULT.directBuffer(bytes).retain();
         buff.writeBytes(data, 0, bytes);
-        return new NettyFuture<>(channel.writeAndFlush(buff).addListener(new ChannelFutureListener() {
+        return createFuture(channel.writeAndFlush(buff).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 bytesWrote += bytes;
@@ -397,5 +397,13 @@ public abstract class Socket implements AutoCloseable {
      */
     protected void checkSocketCreated(String method) {
         if(channel == null) throw new SocketNotCreated("Cannot call " + method + " before creating the Socket", this);
+    }
+
+    protected <ReturnType> FutureImpl<ReturnType> createFuture(Procedure whenCancelled) {
+        return new FutureImpl<>(service, whenCancelled);
+    }
+
+    protected <ReturnType> Future<ReturnType> createFuture(io.netty.util.concurrent.Future<ReturnType> n) {
+        return new NettyFuture<>(n, service, null);
     }
 }

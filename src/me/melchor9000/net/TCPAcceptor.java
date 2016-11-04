@@ -22,6 +22,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import java.lang.reflect.Array;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -89,12 +90,19 @@ public class TCPAcceptor extends Acceptor<TCPSocket> {
     @Override
     public Future<TCPSocket> acceptAsync() {
         checkSocketCreated("acceptAsync");
-        FutureImpl<TCPSocket> a = new FutureImpl<>();
+        @SuppressWarnings("unchecked") final FutureImpl<TCPSocket> a[] = (FutureImpl<TCPSocket>[]) Array.newInstance(FutureImpl.class, 1);
+        a[0] = createFuture(new Procedure() {
+            @Override
+            public void call() {
+                accepts.remove(a[0]);
+            }
+        });
+
         if(channel != null) {
-            if(sockets.isEmpty()) accepts.add(a);
-            else a.postSuccessSafe(sockets.poll());
-        } else a.postErrorSafe(new IllegalStateException("Socket is not listening"));
-        return a;
+            if(sockets.isEmpty()) accepts.add(a[0]);
+            else a[0].postSuccessSafe(sockets.poll());
+        } else a[0].postErrorSafe(new IllegalStateException("Socket is not listening"));
+        return a[0];
     }
 
     @Override

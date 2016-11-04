@@ -29,9 +29,24 @@ import java.util.concurrent.TimeoutException;
  */
 class NettyFuture<ReturnType> implements Future<ReturnType> {
     private final io.netty.util.concurrent.Future<ReturnType> future;
+    private final IOService service;
+    private final Procedure whenCancelled;
+    private Future<?> timeoutFuture;
 
-    NettyFuture(io.netty.util.concurrent.Future<ReturnType> future) {
+    NettyFuture(io.netty.util.concurrent.Future<ReturnType> future, IOService service, Procedure whenCancelled) {
         this.future = future;
+        this.service = service;
+        this.whenCancelled = whenCancelled;
+        future.addListener(new GenericFutureListener<io.netty.util.concurrent.Future<? super ReturnType>>() {
+            @Override
+            public void operationComplete(io.netty.util.concurrent.Future<? super ReturnType> future) throws Exception {
+                if(timeoutFuture != null) timeoutFuture.cancel(false);
+            }
+        });
+    }
+
+    NettyFuture(io.netty.util.concurrent.Future<ReturnType> future, IOService service) {
+        this(future, service, null);
     }
 
     public boolean isDone() {
@@ -44,6 +59,11 @@ class NettyFuture<ReturnType> implements Future<ReturnType> {
 
     public boolean isCancelled() {
         return future.isCancelled();
+    }
+
+    @Override
+    public boolean isCancelable() {
+        return future.isCancellable();
     }
 
     public void cancel(boolean mayInterrupt) {
@@ -65,6 +85,22 @@ class NettyFuture<ReturnType> implements Future<ReturnType> {
                 }
             }
         });
+        return this;
+    }
+
+    @Override
+    public Future<ReturnType> setTimeout(long milliseconds) {
+        if(milliseconds <= 0) throw new IllegalArgumentException("Only positive non 0 values are accepted");
+        if(isDone()) throw new IllegalStateException("The task is done");
+        if(!isCancelable()) throw new IllegalStateException("The task is not cancellable");
+        if(timeoutFuture != null) timeoutFuture.cancel(false);
+        timeoutFuture = service.schedule(new Procedure() {
+            @Override
+            public void call() {
+                cancel(true);
+                if(whenCancelled != null) whenCancelled.call();
+            }
+        }, milliseconds);
         return this;
     }
 

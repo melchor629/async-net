@@ -73,7 +73,7 @@ public class IOService {
             public void run() {
                 block.call();
             }
-        }, milliseconds, TimeUnit.MILLISECONDS));
+        }, milliseconds, TimeUnit.MILLISECONDS), this);
     }
 
     /**
@@ -92,7 +92,7 @@ public class IOService {
      */
     public Future<?> cancelAsync() {
         if(!group.isShutdown()) {
-            return new NettyFuture<>(group.shutdownGracefully());
+            return new NettyFuture<>(group.shutdownGracefully(), this);
         }
         return null;
     }

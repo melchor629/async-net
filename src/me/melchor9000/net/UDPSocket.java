@@ -25,6 +25,7 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.ProtocolFamily;
 import java.net.SocketAddress;
@@ -151,7 +152,7 @@ public class UDPSocket extends Socket {
         checkSocketCreated("sendAsyncTo");
         final ByteBuf buff = channel.alloc().directBuffer(bytes).retain();
         buff.writeBytes(data, bytes);
-        return new NettyFuture<>(channel.writeAndFlush(new DatagramPacket(buff, endpoint)).addListener(new ChannelFutureListener() {
+        return createFuture(channel.writeAndFlush(new DatagramPacket(buff, endpoint)).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 buff.release();
@@ -191,8 +192,15 @@ public class UDPSocket extends Socket {
 
     @Override
     public Future<Long> receiveAsync(ByteBuf data, int bytes) {
-        final FutureImpl<Long> future = new FutureImpl<>();
-        receiveAsyncFrom(data, bytes).whenDone(new Callback<Future<Packet>>() {
+        @SuppressWarnings("unchecked") final Future<Packet> leFuture[] = (FutureImpl<Packet>[]) Array.newInstance(FutureImpl.class, 1);
+        final FutureImpl<Long> future = createFuture(new Procedure() {
+            @Override
+            public void call() {
+                leFuture[0].cancel(true);
+            }
+        });
+
+        leFuture[0] = receiveAsyncFrom(data, bytes).whenDone(new Callback<Future<Packet>>() {
             @Override
             public void call(Future<Packet> arg) throws Exception {
                 if(arg.isSuccessful()) future.postSuccess((long) arg.getValueNow().bytes);
@@ -204,9 +212,16 @@ public class UDPSocket extends Socket {
 
     public Future<Packet> receiveAsyncFrom(ByteBuf data, int bytes) {
         checkSocketCreated("receiveAsyncFrom");
-        FutureImpl<Packet> future = new FutureImpl<>();
+        final ReadOperation op[] = new ReadOperation[1];
+        FutureImpl<Packet> future = createFuture(new Procedure() {
+            @Override
+            public void call() {
+                readOperations.remove(op[0]);
+            }
+        });
+
         channel.read();
-        readOperations.add(new ReadOperation(future, bytes, data));
+        readOperations.add(op[0] = new ReadOperation(future, bytes, data));
         if(!receivedPackets.isEmpty()) {
             try {
                 readManager.checkAndSendData();
@@ -247,8 +262,15 @@ public class UDPSocket extends Socket {
 
     public <Type extends Serializable> Future<Type> receiveAsync(final Type data) {
         final ByteBuf b = Unpooled.buffer(1500).retain();
-        final FutureImpl<Type> future = new FutureImpl<>();
-        receiveAsync(b).whenDone(new Callback<Future<Long>>() {
+        @SuppressWarnings("unchecked") final Future<Long> leFuture[] = (FutureImpl<Long>[]) Array.newInstance(FutureImpl.class, 1);
+        final FutureImpl<Type> future = createFuture(new Procedure() {
+            @Override
+            public void call() {
+                leFuture[0].cancel(true);
+            }
+        });
+
+        leFuture[0] = receiveAsync(b).whenDone(new Callback<Future<Long>>() {
             @Override
             public void call(Future<Long> arg) throws Exception {
                 try {
@@ -272,8 +294,15 @@ public class UDPSocket extends Socket {
 
     public <Type extends Serializable> Future<Packet> receiveAsyncFrom(final Type data) {
         final ByteBuf b = Unpooled.buffer(1500).retain();
-        final FutureImpl<Packet> future = new FutureImpl<>();
-        receiveAsyncFrom(b).whenDone(new Callback<Future<Packet>>() {
+        @SuppressWarnings("unchecked") final Future<Packet> leFuture[] = (FutureImpl<Packet>[]) Array.newInstance(FutureImpl.class, 1);
+        final FutureImpl<Packet> future = createFuture(new Procedure() {
+            @Override
+            public void call() {
+                leFuture[0].cancel(true);
+            }
+        });
+
+        leFuture[0] = receiveAsyncFrom(b).whenDone(new Callback<Future<Packet>>() {
             @Override
             public void call(Future<Packet> arg) throws Exception {
                 try {

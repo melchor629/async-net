@@ -20,6 +20,7 @@ package me.melchor9000.net;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -40,6 +41,14 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
     private List<Callback<Future<ReturnType>>> listeners = new ArrayList<>();
     private Lock lock = new ReentrantLock(true);
     private Condition waitDone = lock.newCondition();
+    private final IOService service;
+    private final Procedure whenCancelled;
+    private Future<?> timeoutFuture;
+
+    public FutureImpl(IOService service, Procedure whenCancelled) {
+        this.service = service;
+        this.whenCancelled = whenCancelled;
+    }
 
     @Override
     public boolean isDone() {
@@ -68,10 +77,15 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
     }
 
     @Override
+    public boolean isCancelable() {
+        return whenCancelled != null;
+    }
+
+    @Override
     public void cancel(boolean mayInterrupt) {
         lock.lock();
         if(!cancelled && !done.get()) {
-            //TODO
+            whenCancelled.call();
             done.set(cancelled = true);
         }
         lock.unlock();
@@ -91,6 +105,21 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
                 throw new RuntimeException(e);
             }
         }
+        return this;
+    }
+
+    @Override
+    public Future<ReturnType> setTimeout(long milliseconds) {
+        if(milliseconds <= 0) throw new IllegalArgumentException("Only positive non 0 values are accepted");
+        if(isDone()) throw new IllegalStateException("The task is done");
+        if(timeoutFuture != null) timeoutFuture.cancel(false);
+        timeoutFuture = service.schedule(new Procedure() {
+            @Override
+            public void call() {
+                cancel(true);
+                postErrorSafe(new CancellationException("Task was cancelled by a timeout"));
+            }
+        }, milliseconds);
         return this;
     }
 
@@ -170,6 +199,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
 
     public void postSuccess(ReturnType result) throws Exception {
         lock.lock();
+        if(timeoutFuture != null) timeoutFuture.cancel(false);
         returnValue = result;
         done.set(successful = true);
         lock.unlock();
@@ -181,6 +211,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
 
     public void postError(Throwable cause) throws Exception {
         lock.lock();
+        if(timeoutFuture != null) timeoutFuture.cancel(false);
         this.cause = cause;
         done.set(true);
         lock.unlock();

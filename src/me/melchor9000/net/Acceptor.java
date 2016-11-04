@@ -56,7 +56,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      */
     public Future<Void> closeAsync() {
         checkSocketCreated("closeAsync");
-        return new NettyFuture<>(channel.close());
+        return createFuture(channel.close());
     }
 
     /**
@@ -73,7 +73,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      */
     public Future<Void> onClose() {
         checkSocketCreated("onClose");
-        return new NettyFuture<>(channel.closeFuture());
+        return createFuture(channel.closeFuture());
     }
 
     /**
@@ -184,5 +184,13 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      */
     protected void checkSocketCreated(String method) {
         if(channel == null) throw new SocketNotCreated("Cannot call " + method + " before creating the Socket", null);
+    }
+
+    protected <ReturnType> FutureImpl<ReturnType> createFuture(Procedure whenCancelled) {
+        return new FutureImpl<>(service, whenCancelled);
+    }
+
+    protected <ReturnType> Future<ReturnType> createFuture(io.netty.util.concurrent.Future<ReturnType> n) {
+        return new NettyFuture<>(n, service, null);
     }
 }

@@ -19,7 +19,7 @@ public class DNSResolver implements AutoCloseable {
     }
 
     public Future<Iterable<InetAddress>> resolveAsync(final String name) {
-        final FutureImpl<Iterable<InetAddress>> future = new FutureImpl<>();
+        final FutureImpl<Iterable<InetAddress>> future = new FutureImpl<>(service, null);
 
         Iterable<InetAddress> resolved = DNSResolverCache.getAddresses(name);
         if(resolved != null) {

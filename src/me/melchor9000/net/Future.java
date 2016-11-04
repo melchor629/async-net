@@ -49,6 +49,12 @@ public interface Future<ReturnType> {
     boolean isCancelled();
 
     /**
+     * Returns true if the task can be cancelled and it is able to set a timeout
+     * @return true if cancellable
+     */
+    boolean isCancelable();
+
+    /**
      * Attempts to cancel the task. If it is running the task,
      * with {@code mayInterrupt} will also interrupt the execution.
      * If the task is done, the attempt will fail.<br>
@@ -64,6 +70,20 @@ public interface Future<ReturnType> {
      * @return this same {@link Future}
      */
     Future<ReturnType> whenDone(final Callback<Future<ReturnType>> cbk);
+
+    /**
+     * When set to a positive value (0 not included), will set a timeout,
+     * starting the instant of type that this method was called, until
+     * the {@code milliseconds}. When the timeout is fired and the {@link Future}
+     * is not done, will cancel the task.
+     * <p>
+     * Call this method when a timeout is already set, will replace the
+     * timeout for a new one.
+     * </p>
+     * @param milliseconds time to timeout the task
+     * @return this same {@link Future}
+     */
+    Future<ReturnType> setTimeout(long milliseconds);
 
     /**
      * Returns the value of the future if it is done. If not, then

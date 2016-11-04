@@ -127,9 +127,16 @@ public class TCPSocket extends Socket {
     @Override
     public Future<Long> receiveAsync(ByteBuf data, int bytes) {
         checkSocketCreated("receiveAsync");
-        final FutureImpl<Long> future = new FutureImpl<>();
+        final ReadOperation op[] = new ReadOperation[1];
+        final FutureImpl<Long> future = createFuture(new Procedure() {
+            @Override
+            public void call() {
+                readOperations.remove(op[0]);
+            }
+        });
+
         if(!isClosed) {
-            readOperations.add(new ReadOperation(future, bytes, data));
+            readOperations.add(op[0] = new ReadOperation(future, bytes, data));
             if(readManager.hasEnoughData()) {
                 try {
                     readManager.checkAndSendData();
@@ -171,7 +178,7 @@ public class TCPSocket extends Socket {
      */
     public Future<Void> shutdownOutputAsync() {
         checkSocketCreated("shutdownOutputAsync");
-        return new NettyFuture<>(socket.shutdownOutput());
+        return createFuture(socket.shutdownOutput());
     }
 
     /**
@@ -194,7 +201,7 @@ public class TCPSocket extends Socket {
      */
     public Future<Void> shutdownInputAsync() {
         checkSocketCreated("shutdownInputAsync");
-        return new NettyFuture<>(socket.shutdownInput());
+        return createFuture(socket.shutdownInput());
     }
 
     /**
@@ -217,7 +224,7 @@ public class TCPSocket extends Socket {
      */
     public Future<Void> shutdownAsync() {
         checkSocketCreated("shutdownAsync");
-        return new NettyFuture<>(socket.shutdown());
+        return createFuture(socket.shutdown());
     }
 
     /**
@@ -242,7 +249,7 @@ public class TCPSocket extends Socket {
      */
     public Future<Void> onClose() {
         checkSocketCreated("onClose");
-        return new NettyFuture<>(socket.closeFuture());
+        return createFuture(socket.closeFuture());
     }
 
     @Override

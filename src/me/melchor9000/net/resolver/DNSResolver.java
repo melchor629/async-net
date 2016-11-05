@@ -1,3 +1,21 @@
+/*
+    async-net: A basic asynchronous network library, based on netty
+    Copyright (C) 2016  melchor629 (melchor9000@gmail.com)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package me.melchor9000.net.resolver;
 
 import me.melchor9000.net.*;
@@ -7,7 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 
 /**
  * DNS resolver for any domain.
@@ -55,7 +72,7 @@ public class DNSResolver implements AutoCloseable {
 
             final Iterator<InetSocketAddress> dnsServers = DNSResolverCache.dnsServers().iterator();
             final InetSocketAddress currentServer[] = new InetSocketAddress[1];
-            final boolean hasRepeatedRequestOnlyWithIPv4[] = new boolean[1];
+            final boolean hasRepeatedRequestOnlyWithIPv4[] = new boolean[] { false };
             final Callback<Future<Void>> sendCbk = new Callback<Future<Void>>() {
                 @Override
                 public void call(Future<Void> arg) {
@@ -84,8 +101,12 @@ public class DNSResolver implements AutoCloseable {
                                     future.postError(arg.cause());
                                 } else {
                                     if(hasRepeatedRequestOnlyWithIPv4[0]) {
-                                        hasRepeatedRequestOnlyWithIPv4[0] = false;
-                                        socket.sendAsyncTo(message, currentServer[0] = dnsServers.next()).whenDone(self);
+                                        if(dnsServers.hasNext()) {
+                                            hasRepeatedRequestOnlyWithIPv4[0] = false;
+                                            socket.sendAsyncTo(message, currentServer[0] = dnsServers.next()).whenDone(self);
+                                        } else {
+                                            future.postError(new UnknownHostException(name));
+                                        }
                                     } else {
                                         socket.sendAsyncTo(message4, currentServer[0]).whenDone(self);
                                         hasRepeatedRequestOnlyWithIPv4[0] = true;

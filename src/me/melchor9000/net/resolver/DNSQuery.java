@@ -69,12 +69,12 @@ public class DNSQuery extends Serializable {
     }
 
     public void setClass(String type) {
-        this.type = DNSUtils.classToInt(type);
+        this.mclass = DNSUtils.classToInt(type);
     }
 
     @Override
     public int byteBufSize() {
-        return name.length() + 5;
+        return name.length() + 6;
     }
 
     @Override

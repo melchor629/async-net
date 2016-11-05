@@ -53,7 +53,7 @@ public class DNSMX extends DNSResourceData {
 
     @Override
     public int byteBufSize() {
-        return 3 + exchange.length();
+        return 4 + exchange.length();
     }
 
     @Override

@@ -54,7 +54,7 @@ class DNSUtils {
         }
 
         if(finalPos != -1) b.readerIndex(finalPos);
-        return domain.substring(1);
+        return domain.length() > 0 ? domain.substring(1) : domain;
     }
 
     static String typeToString(int type) {

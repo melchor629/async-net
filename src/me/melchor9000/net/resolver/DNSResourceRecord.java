@@ -93,7 +93,7 @@ public class DNSResourceRecord extends Serializable {
 
     @Override
     public int byteBufSize() {
-        return name.length() + 9 + (data != null ? data.byteBufSize() : 0);
+        return name.length() + 12 + (data != null ? data.byteBufSize() : 0);
     }
 
     @Override
@@ -102,6 +102,7 @@ public class DNSResourceRecord extends Serializable {
         buffer.writeShort(type);
         buffer.writeShort(nclass);
         buffer.writeInt((int) ttl);
+        buffer.writeShort(data != null ? data.byteBufSize() : 0);
         if(data != null) data.toByteBuf(buffer);
     }
 

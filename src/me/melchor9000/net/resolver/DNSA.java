@@ -38,8 +38,8 @@ public class DNSA extends DNSResourceData {
         this.address = address;
     }
 
-    public void setAddress(byte a1, byte a2, byte a3, byte a4) {
-        setAddress(new byte[] { a1, a2, a3, a4 });
+    public void setAddress(int a1, int a2, int a3, int a4) {
+        setAddress(new byte[] { (byte) a1, (byte) a2, (byte) a3, (byte) a4 });
     }
 
     public void setAddress(byte[] address) {

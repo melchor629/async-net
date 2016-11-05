@@ -83,10 +83,12 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
 
     @Override
     public void cancel(boolean mayInterrupt) {
+        if(!isCancelable()) throw new IllegalStateException("This task cannot be cancelled");
         lock.lock();
         if(!cancelled && !done.get()) {
             whenCancelled.call();
             done.set(cancelled = true);
+            postError(new CancellationException("Task was cancelled"));
         }
         lock.unlock();
     }
@@ -99,11 +101,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
             lock.unlock();
         } else {
             lock.unlock();
-            try {
-                cbk.call(this);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            cbk.call(this);
         }
         return this;
     }
@@ -112,12 +110,12 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
     public Future<ReturnType> setTimeout(long milliseconds) {
         if(milliseconds <= 0) throw new IllegalArgumentException("Only positive non 0 values are accepted");
         if(isDone()) throw new IllegalStateException("The task is done");
+        if(!isCancelable()) throw new IllegalStateException("This task cannot be cancelled");
         if(timeoutFuture != null) timeoutFuture.cancel(false);
         timeoutFuture = service.schedule(new Procedure() {
             @Override
             public void call() {
                 cancel(true);
-                postError(new CancellationException("Task was cancelled by a timeout"));
             }
         }, milliseconds);
         return this;
@@ -143,7 +141,10 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
     public ReturnType getValue(long millis) throws InterruptedException, ExecutionException, TimeoutException {
         if(!done.get()) {
             lock.lock();
-            waitDone.await(millis, TimeUnit.MILLISECONDS);
+            if(!waitDone.await(millis, TimeUnit.MILLISECONDS)) {
+                lock.unlock();
+                throw new TimeoutException("Has passed " + millis + "ms and no result got");
+            }
             lock.unlock();
         }
         if(!isSuccessful()) throw new ExecutionException(cause);
@@ -152,21 +153,18 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
 
     @Override
     public ReturnType getValueUninterrumptibly(long millis) throws ExecutionException, TimeoutException {
-        ReturnType ret = null;
         if(!done.get()) {
             long currentMillis = System.currentTimeMillis();
-            while (!isDone()) {
+            while(!isDone() && millis > 0) {
                 try {
-                    ret = getValue(millis);
+                    getValue(millis);
                 } catch (InterruptedException ignore) {
                     millis -= System.currentTimeMillis() - currentMillis;
                 }
             }
-        } else {
-            ret = returnValue;
         }
         if(!isSuccessful()) throw new ExecutionException(cause);
-        return ret;
+        return returnValue;
     }
 
     @Override
@@ -197,7 +195,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
             lock.lock();
             waitDone.awaitUninterruptibly();
             lock.unlock();
-            if(!isSuccessful()) doThrow(new ExecutionException(cause));
+            if(!isSuccessful()) doThrow(cause);
         }
         return this;
     }
@@ -237,12 +235,12 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         }
     }
 
-    private void doThrow(Exception e) {
+    private void doThrow(Throwable e) {
         // http://stackoverflow.com/questions/6302015/throw-checked-exceptions
         FutureImpl.<RuntimeException> doThrow0(e);
     }
 
-    @SuppressWarnings("unchecked") private static <E extends Exception> void doThrow0(Exception e) throws E {
+    @SuppressWarnings("unchecked") private static <E extends Throwable> void doThrow0(Throwable e) throws E {
         throw (E) e;
     }
 }

@@ -3,7 +3,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-version = '1.0.1'
+version = '1.0.2'
 group = 'me.melchor9000'
 archivesBaseName = 'async-net'
 
@@ -19,6 +19,8 @@ dependencies {
     compile 'io.netty:netty-common:4.1.6.Final'
     compile 'io.netty:netty-buffer:4.1.6.Final'
     compile 'io.netty:netty-transport:4.1.6.Final'
+
+    testCompile 'junit:junit:4.12'
 }
 
 // Change source sets to match the project
@@ -26,6 +28,12 @@ sourceSets {
     main {
         java {
             srcDirs = [ 'src' ]
+        }
+    }
+
+    test {
+        java {
+            srcDirs = ['test']
         }
     }
 }

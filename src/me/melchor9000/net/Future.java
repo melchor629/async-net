@@ -80,6 +80,10 @@ public interface Future<ReturnType> {
      * Call this method when a timeout is already set, will replace the
      * timeout for a new one.
      * </p>
+     * <p>
+     * If the task is not cancelable or is done, this method will fail
+     * and throw an {@link IllegalStateException}.
+     * </p>
      * @param milliseconds time to timeout the task
      * @return this same {@link Future}
      */

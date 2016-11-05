@@ -27,7 +27,8 @@ You can see [TestTCP.java][4], [TestUDP.java][5] and [TestTCPServer.java][6] as 
 using the domain you put. Also you can add the path (like `melchor9000.me/eugl/`), but never start with `http://`. Is an example of how to use a TCP socket asynchronously, useful for GUI apps.
 
 [TestUDP.java][5] is a simple `dig` command, shows you some information about a domain you choose. Demonstrates how to use an UDP
-socket, not connected to any host, and in asynchronous mode too.
+socket, not connected to any host, and in asynchronous mode too. Also, how to send and receive messages from and into Java Objects
+with the help of `Serializable` class.
 
 [TestTCPServer.java][6] is an simple echo server. Anything it receives, will return to the sender. Exposes the way to create a TCP acceptor and how to use synchronous calls to the library API. You can test the example with `telnet localhost 4321`.
 

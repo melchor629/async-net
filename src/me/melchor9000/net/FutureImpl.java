@@ -87,7 +87,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         lock.lock();
         if(!cancelled && !done.get()) {
             whenCancelled.call();
-            done.set(cancelled = true);
+            cancelled = true;
             postError(new CancellationException("Task was cancelled"));
         }
         lock.unlock();
@@ -115,7 +115,10 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         timeoutFuture = service.schedule(new Procedure() {
             @Override
             public void call() {
-                cancel(true);
+                if(!isDone()) {
+                    whenCancelled.call();
+                    cancel(true);
+                }
             }
         }, milliseconds);
         return this;
@@ -201,6 +204,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
     }
 
     public void postSuccess(ReturnType result) {
+        if(isDone()) throw new IllegalStateException("Task is already done");
         lock.lock();
         if(timeoutFuture != null) timeoutFuture.cancel(false);
         returnValue = result;
@@ -213,6 +217,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
     }
 
     public void postError(Throwable cause) {
+        if(isDone()) throw new IllegalStateException("Task is already done");
         lock.lock();
         if(timeoutFuture != null) timeoutFuture.cancel(false);
         this.cause = cause;

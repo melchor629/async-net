@@ -97,8 +97,10 @@ class NettyFuture<ReturnType> implements Future<ReturnType> {
         timeoutFuture = service.schedule(new Procedure() {
             @Override
             public void call() {
-                cancel(true);
-                if(whenCancelled != null) whenCancelled.call();
+                if(!isDone()) {
+                    if(whenCancelled != null) whenCancelled.call();
+                    cancel(true);
+                }
             }
         }, milliseconds);
         return this;

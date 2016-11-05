@@ -109,14 +109,19 @@ public class DNSResourceRecord extends Serializable {
     @Override
     public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
         name = readName(buffer);
-        type = buffer.readUnsignedShort();
-        nclass = buffer.readUnsignedShort();
-        ttl = buffer.readUnsignedInt();
+        type = rs(buffer);
+        nclass = rs(buffer);
+        if(buffer.readableBytes() >= 4) ttl = buffer.readUnsignedInt(); else throw new DataNotRepresentsObject("Incomplete", buffer);
         data = DNSResourceData.forData(type, buffer);
     }
 
     @Override
     public String toString() {
         return "[" + classToString(nclass) + "] " + typeToString(type) + " " + name + " - " + ttl + " - " + data;
+    }
+
+    private int rs(ByteBuf buf) {
+        if(buf.readableBytes() < 2) throw new DataNotRepresentsObject("Is an incomplete DNS Resource Record", buf);
+        return buf.readUnsignedShort();
     }
 }

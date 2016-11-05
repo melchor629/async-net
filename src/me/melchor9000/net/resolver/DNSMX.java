@@ -64,6 +64,7 @@ public class DNSMX extends DNSResourceData {
 
     @Override
     public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+        if(buffer.readableBytes() < 2) throw new DataNotRepresentsObject("DNS RR type MX doesn't contain data", buffer);
         preference = buffer.readUnsignedShort();
         exchange = readName(buffer);
     }

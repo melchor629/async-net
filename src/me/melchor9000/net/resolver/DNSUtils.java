@@ -19,6 +19,7 @@
 package me.melchor9000.net.resolver;
 
 import io.netty.buffer.ByteBuf;
+import me.melchor9000.net.DataNotRepresentsObject;
 
 /**
  * Utils for the resolver implementation
@@ -45,6 +46,7 @@ class DNSUtils {
         String domain = "";
         while((length = b.readByte()) != 0) {
             if((length & 0xC0) != 0xC0) {
+                if(b.readableBytes() < length) throw new DataNotRepresentsObject("Incomplete name", b);
                 byte label[] = new byte[length];
                 b.readBytes(label);
                 domain += "." + new String(label);

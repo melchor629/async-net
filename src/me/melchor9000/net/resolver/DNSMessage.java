@@ -198,11 +198,8 @@ public class DNSMessage extends Serializable {
 
     @Override
     public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
-        int id = buffer.readUnsignedShort();
-
-        if((this.id & 0xFFFF) != id) throw new DataNotRepresentsObject("Don't match Transaction ID", buffer);
-
-        int flags = buffer.readUnsignedShort();
+        id = rs(buffer);
+        int flags = rs(buffer);
         queryOrResponse = (flags & 0x8000) != 0;
         opcode = (byte) ((flags & 0x7800) >> 11);
         authoritativeResponse = (flags & 0x0400) != 0;
@@ -211,10 +208,10 @@ public class DNSMessage extends Serializable {
         recursionAvailable = (flags & 0x0080) != 0;
         responseCode = (byte) (flags & 0xF);
 
-        int qdcount = buffer.readUnsignedShort();
-        int ancount = buffer.readUnsignedShort();
-        int nscount = buffer.readUnsignedShort();
-        int arcount = buffer.readUnsignedShort();
+        int qdcount = rs(buffer);
+        int ancount = rs(buffer);
+        int nscount = rs(buffer);
+        int arcount = rs(buffer);
 
         for(int i = 0; i < qdcount; i++) {
             DNSQuery query = new DNSQuery();
@@ -239,5 +236,10 @@ public class DNSMessage extends Serializable {
             record.fromByteBuf(buffer);
             additionalRecords.add(record);
         }
+    }
+
+    private int rs(ByteBuf buf) {
+        if(buf.readableBytes() < 2) throw new DataNotRepresentsObject("Is an incomplete DNS message or isn't it", buf);
+        return buf.readUnsignedShort();
     }
 }

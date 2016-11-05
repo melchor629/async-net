@@ -64,6 +64,7 @@ public class DNSA extends DNSResourceData {
 
     @Override
     public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+        if(buffer.readableBytes() < 4) throw new DataNotRepresentsObject("DNS RR type A doesn't contain data", buffer);
         byte ip[] = new byte[4];
         buffer.readBytes(ip);
         try {

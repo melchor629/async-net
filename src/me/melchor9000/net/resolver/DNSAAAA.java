@@ -55,6 +55,7 @@ public class DNSAAAA extends DNSResourceData {
 
     @Override
     public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+        if(buffer.readableBytes() < 16) throw new DataNotRepresentsObject("DNS RR type AAAA doesn't contain data", buffer);
         byte addbin[] = new byte[byteBufSize()];
         buffer.readBytes(addbin);
         try {

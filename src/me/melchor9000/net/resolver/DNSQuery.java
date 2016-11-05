@@ -25,7 +25,7 @@ import me.melchor9000.net.Serializable;
 import static me.melchor9000.net.resolver.DNSUtils.*;
 
 /**
- * Created by melchor9000 on 2/11/16.
+ * DNS Query
  */
 public class DNSQuery extends Serializable {
     private String name;
@@ -86,6 +86,7 @@ public class DNSQuery extends Serializable {
 
     @Override
     public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+        if(buffer.readableBytes() < 4) throw new DataNotRepresentsObject("DNS Query is invalid", buffer);
         name = readName(buffer);
         type = buffer.readUnsignedShort();
         mclass = buffer.readUnsignedShort();

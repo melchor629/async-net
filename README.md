@@ -6,7 +6,7 @@ It is published in the maven central repository, so you can easily use it in you
 
 Gradle
 ```
-compile 'me.melchor9000:async-net:1.0.0'
+compile 'me.melchor9000:async-net:1.0.2'
 ```
 
 Maven

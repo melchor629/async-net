@@ -33,7 +33,7 @@ import static me.melchor9000.net.resolver.DNSUtils.errorToString;
  * @see <a href="https://tools.ietf.org/html/rfc1035">RFC 1035 - Domain Implementation and Specification</a>
  */
 public class DNSMessage extends Serializable {
-    private int id = (short) (ThreadLocalRandom.current().nextInt() & 0xFFFF);
+    private int id = ThreadLocalRandom.current().nextInt() & 0xFFFF;
     private boolean queryOrResponse = false; //false to query, response to true
     private byte opcode;
     private boolean authoritativeResponse;
@@ -51,7 +51,7 @@ public class DNSMessage extends Serializable {
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.id = id & 0xFFFF;
     }
 
     public boolean isQueryOrResponse() {

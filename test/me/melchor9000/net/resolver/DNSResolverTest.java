@@ -253,8 +253,8 @@ public class DNSResolverTest {
     }
 
     @Test
-    public void resolvesName() throws Exception {
-        Set<InetAddress> addresses = toSet(resolver.resolve("twitter.com"));
+    public void resolvesNameIPv4() throws Exception {
+        Set<InetAddress> addresses = toSet(resolver.resolveV4("twitter.com"));
         assertEquals("Must have 4 entries for twitter.com", 4, addresses.size());
         assertTrue("104.244.42.193 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {104, (byte) 244, 42, (byte) 193})));
         assertTrue("104.244.42.065 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {104, (byte) 244, 42, (byte)  65})));
@@ -263,14 +263,28 @@ public class DNSResolverTest {
     }
 
     @Test
-    public void resolvesCachesRequests() {
-        Set<InetAddress> ad1 = toSet(resolver.resolve("www.google.com"));
-        long start = System.nanoTime();
-        Set<InetAddress> ad2 = toSet(resolver.resolve("www.google.com"));
-        long end = System.nanoTime();
+    public void resolvesCachesRequestsIPv4() {
+        Set<InetAddress> ad1 = toSet(resolver.resolveV4("www.google.com")); //Resolve
+        Set<InetAddress> ad2 = toSet(DNSResolverCache.getAddressesIPv4("www.google.com")); //Get from caché
 
         assertEquals("Addresses must be equals", ad1, ad2);
-        assertTrue("Must store in cache done requests", end - start < 1000000); //Less than 1ms
+    }
+
+    @Test
+    public void resolvesNameIPv6() throws Exception {
+        Set<InetAddress> addresses = toSet(resolver.resolveV6("www.facebook.com"));
+        assertEquals("Must have 1 entry for www.facebook.com", 1, addresses.size());
+        assertTrue("2a03:2880:f11c:8083:face:b00c::25de is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {
+                0x2a, 0x03, 0x28, (byte) 0x80, (byte) 0xf1, 0x1c, (byte) 0x00, (byte) 0x83, (byte) 0xfa, (byte) 0xce, (byte) 0xb0, 0x0c, 0x00, 0x00, 0x25, (byte) 0xde
+        })));
+    }
+
+    @Test
+    public void resolvesCachesRequestsIPv6() {
+        Set<InetAddress> ad1 = toSet(resolver.resolveV6("www.google.com")); //Resolve
+        Set<InetAddress> ad2 = toSet(DNSResolverCache.getAddressesIPv6("www.google.com")); //Get from caché
+
+        assertEquals("Addresses must be equals", ad1, ad2);
     }
 
     private <T> Set<T> toSet(Iterable<T> iterable) {

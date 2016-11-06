@@ -276,6 +276,8 @@ public class DNSResolverTest {
         assertEquals("Must have 1 entry for www.facebook.com", 1, addresses.size());
         assertTrue("2a03:2880:f11c:8083:face:b00c::25de is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {
                 0x2a, 0x03, 0x28, (byte) 0x80, (byte) 0xf1, 0x1c, (byte) 0x00, (byte) 0x83, (byte) 0xfa, (byte) 0xce, (byte) 0xb0, 0x0c, 0x00, 0x00, 0x25, (byte) 0xde
+        })) || addresses.contains(InetAddress.getByAddress(new byte[] {
+                0x2a, 0x03, 0x28, (byte) 0x80, (byte) 0xf1, 0x1c, (byte) 0x80, (byte) 0x83, (byte) 0xfa, (byte) 0xce, (byte) 0xb0, 0x0c, 0x00, 0x00, 0x25, (byte) 0xde
         })));
     }
 

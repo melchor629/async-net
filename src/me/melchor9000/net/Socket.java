@@ -169,6 +169,7 @@ public abstract class Socket implements AutoCloseable {
      * @throws UnknownHostException If the hostName cannot be resolved
      */
     public Future<Void> connectAsync(String hostName, final int port) throws UnknownHostException {
+        final DNSResolver resolver = new DNSResolver(service);
         final Future<?> f[] = (Future<?>[]) Array.newInstance(Future.class, 1);
         final FutureImpl<Void> future = createFuture(new Procedure() {
             @Override
@@ -176,8 +177,13 @@ public abstract class Socket implements AutoCloseable {
                 f[0].cancel(true);
             }
         });
+        future.whenDone(new Callback<Future<Void>>() {
+            @Override
+            public void call(Future<Void> arg) {
+                resolver.closeAsync();
+            }
+        });
 
-        DNSResolver resolver = new DNSResolver(service);
         f[0] = resolver.resolveAsyncV4(hostName).whenDone(new Callback<Future<Iterable<InetAddress>>>() {
             @Override
             public void call(Future<Iterable<InetAddress>> arg) {

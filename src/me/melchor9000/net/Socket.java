@@ -26,7 +26,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
+import me.melchor9000.net.resolver.DNSResolver;
 
+import java.lang.reflect.Array;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,16 +139,14 @@ public abstract class Socket implements AutoCloseable {
 
     /**
      * Binds the socket to a random port and connects to the remote endpoint as
-     * {@code hostName} and {@code port}.<br>
-     * On <b>Android 4.0 or higher</b>, this method cannot be called from the
-     * UI Thread.
-     * @param hostName domain or IP address of the remote endpoint
+     * {@code hostName} and {@code port}.
+     * @param hostName domain of the remote endpoint
      * @param port port of the remote endpoint
      * @throws InterruptedException When this {@link Thread} is interrupted while waiting to connect
      * @throws UnknownHostException If the hostName cannot be resolved
      */
     public void connect(String hostName, int port) throws UnknownHostException, InterruptedException {
-        connect(InetAddress.getByName(hostName), port);
+        connectAsync(hostName, port).sync();
     }
 
     /**
@@ -163,13 +163,38 @@ public abstract class Socket implements AutoCloseable {
     /**
      * Binds the socket to a random port and connects to the remote endpoint as
      * {@code hostName} and {@code port}.
-     * @param hostName domain or IP address of the remote endpoint
+     * @param hostName domain of the remote endpoint
      * @param port port of the remote endpoint
      * @return {@link Future} of the task
      * @throws UnknownHostException If the hostName cannot be resolved
      */
-    public Future<Void> connectAsync(String hostName, int port) throws UnknownHostException {
-        return connectAsync(InetAddress.getByName(hostName), port);
+    public Future<Void> connectAsync(String hostName, final int port) throws UnknownHostException {
+        final Future<?> f[] = (Future<?>[]) Array.newInstance(Future.class, 1);
+        final FutureImpl<Void> future = createFuture(new Procedure() {
+            @Override
+            public void call() {
+                f[0].cancel(true);
+            }
+        });
+
+        DNSResolver resolver = new DNSResolver(service);
+        f[0] = resolver.resolveAsyncV4(hostName).whenDone(new Callback<Future<Iterable<InetAddress>>>() {
+            @Override
+            public void call(Future<Iterable<InetAddress>> arg) {
+                if(arg.isSuccessful()) {
+                    f[0] = connectAsync(arg.getValueNow().iterator().next(), port).whenDone(new Callback<Future<Void>>() {
+                        @Override
+                        public void call(Future<Void> arg) {
+                            if(arg.isSuccessful()) future.postSuccess(null);
+                            else if(!arg.isCancelled()) future.postError(arg.cause());
+                        }
+                    });
+                } else if(!arg.isCancelled()) {
+                    future.postError(arg.cause());
+                }
+            }
+        });
+        return future;
     }
 
     /**

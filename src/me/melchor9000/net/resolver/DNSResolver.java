@@ -243,7 +243,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
             @Override
             public void call(Future<Void> arg) {
                 r.tries--;
-                if(!arg.isSuccessful()) {
+                if(!arg.isSuccessful() && !arg.isCancelled()) {
                     future.postError(arg.cause());
                 }
             }
@@ -255,9 +255,14 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
                 if(!future.isDone()) {
                     if(r.tries > 0) {
                         socket.sendAsyncTo(sentMessage, r.currentServer).whenDone(sendCbk);
-                        service.schedule(this, 1000);
+                        r.timeoutFuture = service.schedule(this, 1000);
                     } else {
-                        future.postError(new TimeoutException());
+                        if(r.it.hasNext()) {
+                            socket.sendAsyncTo(sentMessage, r.currentServer = r.it.next()).whenDone(sendCbk);
+                            r.timeoutFuture = service.schedule(this, 1000);
+                        } else {
+                            future.postError(new TimeoutException());
+                        }
                     }
                 }
             }
@@ -265,7 +270,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
 
         if(!socket.isOpen()) socket.bind();
         socket.sendAsyncTo(sentMessage, r.currentServer).whenDone(sendCbk);
-        service.schedule(timeoutProc, 1000);
+        r.timeoutFuture = service.schedule(timeoutProc, 1000);
     }
 
     private void addAllRecords(String name, Iterable<DNSResourceRecord> a) {
@@ -292,6 +297,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
         Request r = requestById(message.getId());
         if(r != null) {
             String name = r.sentMessage.getQueries().iterator().next().getName();
+            if(r.timeoutFuture != null) r.timeoutFuture.cancel(true);
             if(message.getResponseCode() != 0) {
                 if(message.getResponseCode() == 3) {
                     r.future.postError(new UnknownHostException(name));
@@ -306,8 +312,6 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
                     r.future.postSuccess(DNSResolverCache.getAddressesIPv6(name));
                 } else if(r.type == 4) {
                     r.future.postSuccess(DNSResolverCache.getAddressesIPv4(name));
-                } else {
-                    r.future.postSuccess(DNSResolverCache.getAddresses(name));
                 }
             }
         } else {
@@ -317,6 +321,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
 
     private class Request {
         private FutureImpl<Iterable<InetAddress>> future;
+        private Future<?> timeoutFuture;
         private DNSMessage sentMessage;
         private Iterator<InetSocketAddress> it;
         private InetSocketAddress currentServer;

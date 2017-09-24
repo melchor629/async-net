@@ -1,6 +1,6 @@
 /*
     async-net: A basic asynchronous network library, based on netty
-    Copyright (C) 2016  melchor629 (melchor9000@gmail.com)
+    Copyright (C) 2017  melchor629 (melchor9000@gmail.com)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.*;
@@ -252,14 +253,12 @@ public class DNSResolverTest {
         }, data);
     }
 
-    /*@Test
+    @Test
     public void resolvesNameIPv4() throws Exception {
-        Set<InetAddress> addresses = toSet(resolver.resolveV4("twitter.com"));
-        assertEquals("Must have 4 entries for twitter.com", 4, addresses.size());
-        assertTrue("104.244.42.193 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {104, (byte) 244, 42, (byte) 193})));
-        assertTrue("104.244.42.065 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {104, (byte) 244, 42, (byte)  65})));
-        assertTrue("104.244.42.001 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {104, (byte) 244, 42, (byte)   1})));
-        assertTrue("104.244.42.192 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {104, (byte) 244, 42, (byte) 129})));
+        Set<InetAddress> addresses = toSet(resolver.resolveV4("melchor9000.me"));
+        assertEquals("Must have 2 entries for melchor9000.me", 2, addresses.size());
+        assertTrue("192.30.252.153 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] { (byte) 192, 30, (byte) 252, (byte) 153 })));
+        assertTrue("192.30.252.154 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] { (byte) 192, 30, (byte) 252, (byte) 154 })));
     }
 
     @Test
@@ -272,12 +271,10 @@ public class DNSResolverTest {
 
     @Test
     public void resolvesNameIPv6() throws Exception {
-        Set<InetAddress> addresses = toSet(resolver.resolveV6("www.facebook.com"));
-        assertEquals("Must have 1 entry for www.facebook.com", 1, addresses.size());
-        assertTrue("2a03:2880:f11c:8083:face:b00c::25de is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {
-                0x2a, 0x03, 0x28, (byte) 0x80, (byte) 0xf1, 0x1c, (byte) 0x00, (byte) 0x83, (byte) 0xfa, (byte) 0xce, (byte) 0xb0, 0x0c, 0x00, 0x00, 0x25, (byte) 0xde
-        })) || addresses.contains(InetAddress.getByAddress(new byte[] {
-                0x2a, 0x03, 0x28, (byte) 0x80, (byte) 0xf1, 0x1c, (byte) 0x80, (byte) 0x83, (byte) 0xfa, (byte) 0xce, (byte) 0xb0, 0x0c, 0x00, 0x00, 0x25, (byte) 0xde
+        Set<InetAddress> addresses = toSet(resolver.resolveV6("bandaancha.eu"));
+        assertEquals("Must have 1 entry for bandaancha.eu", 1, addresses.size());
+        assertTrue("2001:470:1f20:49::2 is not inside", addresses.contains(InetAddress.getByAddress(new byte[] {
+                0x20, 0x01, 0x04, 0x70, 0x1f, 0x20, 0x00, 0x49, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02
         })));
     }
 
@@ -287,7 +284,28 @@ public class DNSResolverTest {
         Set<InetAddress> ad2 = toSet(DNSResolverCache.getAddressesIPv6("www.google.com")); //Get from caché
 
         assertEquals("Addresses must be equals", ad1, ad2);
+    }
+
+    /*@Test(expected = UnknownHostException.class)
+    public void notResolvesUnknownHost() {
+        resolver.resolve("abc123zxy987q.net");
     }*/
+
+    @Test
+    public void shouldResolveHostWithIPv4AndIPv6() {
+        Set<InetAddress> addresses = toSet(resolver.resolve("www.facebook.com"));
+        assertTrue("www.facebook.com should resolve at least 2 addresses", addresses.size() >= 2);
+
+        Inet4Address ip4 = null;
+        Inet6Address ip6 = null;
+        for(InetAddress address : addresses) {
+            if(address instanceof Inet4Address) ip4 = (Inet4Address) address;
+            if(address instanceof Inet6Address) ip6 = (Inet6Address) address;
+        }
+
+        assertNotNull("Must be one IPv4", ip4);
+        assertNotNull("Must be one IPv6", ip6);
+    }
 
     private <T> Set<T> toSet(Iterable<T> iterable) {
         Set<T> set = new HashSet<>();

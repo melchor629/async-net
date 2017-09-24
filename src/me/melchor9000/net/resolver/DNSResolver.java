@@ -129,7 +129,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
 
         if(DNSResolverCache.hasIPv4(name) && DNSResolverCache.hasIPv6(name)) {
             future.postSuccess(DNSResolverCache.getAddresses(name));
-        } else if(!DNSResolverCache.hasIPv4(name)) {
+        } else if(!DNSResolverCache.hasIPv4(name) && DNSResolverCache.hasIPv6(name)) {
             resolveAsyncV4(name).whenDone(new Callback<Future<Iterable<InetAddress>>>() {
                 @Override
                 public void call(Future<Iterable<InetAddress>> arg) {
@@ -137,7 +137,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
                     else future.postError(arg.cause());
                 }
             });
-        } else if(!DNSResolverCache.hasIPv6(name)) {
+        } else if(!DNSResolverCache.hasIPv6(name) && DNSResolverCache.hasIPv4(name)) {
             resolveAsyncV6(name).whenDone(new Callback<Future<Iterable<InetAddress>>>() {
                 @Override
                 public void call(Future<Iterable<InetAddress>> arg) {
@@ -200,7 +200,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
 
     @Override
     public void close() {
-        if(socket.isOpen()) socket.close();
+        if(socket.isOpen()) this.closeAsync().sync();
     }
 
     /**

@@ -43,20 +43,20 @@ class DNSUtils {
         int length;
         b.readerIndex(position);
 
-        String domain = "";
+        StringBuilder domain = new StringBuilder();
         while((length = b.readByte()) != 0) {
             if((length & 0xC0) != 0xC0) {
                 if(b.readableBytes() < length) throw new DataNotRepresentsObject("Incomplete name", b);
                 byte label[] = new byte[length];
                 b.readBytes(label);
-                domain += "." + new String(label);
+                domain.append(".").append(new String(label));
             } else {
-                domain += "." + readName(b, b.readByte(), b.readerIndex());
+                domain.append(".").append(readName(b, b.readByte(), b.readerIndex()));
             }
         }
 
         if(finalPos != -1) b.readerIndex(finalPos);
-        return domain.length() > 0 ? domain.substring(1) : domain;
+        return domain.length() > 0 ? domain.substring(1) : domain.toString();
     }
 
     static String typeToString(int type) {

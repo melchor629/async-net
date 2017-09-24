@@ -138,8 +138,8 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
     /**
      * Instead of using {@link #accept()} or {@link #acceptAsync()}, it is
      * possible to use a listener to receive any new connection to the
-     * acceptor. It is complementary of the before calls, so if one of the
-     * before methods is called, the new connection will be returned in this
+     * acceptor. It is complementary of the before methods, so if one of the
+     * before methods are called, the new connection will be returned in this
      * calls, not in the listener.
      * @param cbk a listener that will be called when a new connection occurs
      */

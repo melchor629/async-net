@@ -14,14 +14,14 @@ Maven
 <dependency>
     <groupId>me.melchor9000</groupId>
     <artifactId>async-net</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
 You can always compile by hand and import the `.jar` into your project. To compile, you will need [Gradle][1] and [netty][2] library.
 
 ## Examples
-You can see [TestTCP.java][4], [TestUDP.java][5] and [TestTCPServer.java][6] as examples.
+You can see [TestTCP.java][4], [TestUDP.java][5], [TestTCPServer.java][6] [TestSSL.java][7] as examples.
 
 [TestTCP.java][4] is a Swing application that make HTTP `GET` requests
 using the domain you put. Also you can add the path (like `melchor9000.me/eugl/`), but never start with `http://`. Is an example of how to use a TCP socket asynchronously, useful for GUI apps.
@@ -37,10 +37,6 @@ I came from programming net code in C++ with [Boost asio][3] library, that gives
 
 So I decided to search a bit and I found [netty][2]. But this library at all is a kind complex but very powerful. And that wasn't my needs at all. I tried to make a library that is kind similar to [Boost asio][3]'s but more easy to use, and compatible with Android. And that's how appeared `async-net`.
 
-## What this library needs? (aka TODOs)
-Is a list of ideas that will be added in next releases
-
- - SSL/TLS connections as a new Socket class
 
  [1]: https://gradle.org
  [2]: http://netty.io
@@ -48,3 +44,4 @@ Is a list of ideas that will be added in next releases
  [4]: https://github.com/melchor629/async-net/blob/master/src/TestTCP.java
  [5]: https://github.com/melchor629/async-net/blob/master/src/TestUDP.java
  [6]: https://github.com/melchor629/async-net/blob/master/src/TestTCPServer.java
+ [7]: https://github.com/melchor629/async-net/blob/master/src/TestSSL.java

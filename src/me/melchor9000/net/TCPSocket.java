@@ -62,10 +62,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * </p>
  */
 public class TCPSocket extends Socket {
-    private SocketChannel socket;
+    protected SocketChannel socket;
     private ByteBuf readBuffer;
     private ConcurrentLinkedQueue<ReadOperation> readOperations;
-    private ReadManager readManager;
+    final ReadManager readManager;
     private volatile boolean isClosed = false;
 
     /**
@@ -79,7 +79,7 @@ public class TCPSocket extends Socket {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(readManager);
+                        ch.pipeline().addLast("readManager", readManager);
                     }
                 });
         readBuffer = ByteBufAllocator.DEFAULT.directBuffer(1460, 1460 * 100).retain();
@@ -93,7 +93,7 @@ public class TCPSocket extends Socket {
         readBuffer = ByteBufAllocator.DEFAULT.directBuffer(1460, 1460 * 100).retain();
         readOperations = new ConcurrentLinkedQueue<>();
         readManager = new ReadManager();
-        socket.pipeline().addLast(readManager);
+        socket.pipeline().addLast("readManager", readManager);
     }
 
     @Override

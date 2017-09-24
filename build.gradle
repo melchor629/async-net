@@ -16,9 +16,10 @@ repositories {
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-    compile 'io.netty:netty-common:4.1.6.Final'
-    compile 'io.netty:netty-buffer:4.1.6.Final'
-    compile 'io.netty:netty-transport:4.1.6.Final'
+    compile 'io.netty:netty-common:4.1.15.Final'
+    compile 'io.netty:netty-buffer:4.1.15.Final'
+    compile 'io.netty:netty-transport:4.1.15.Final'
+    compile 'io.netty:netty-handler:4.1.15.Final'
 
     testCompile 'junit:junit:4.12'
 }

@@ -22,6 +22,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -43,8 +44,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * </p>
  */
 public class TCPAcceptor extends Acceptor<TCPSocket> {
-    private ConcurrentLinkedQueue<FutureImpl<TCPSocket>> accepts;
-    private ConcurrentLinkedQueue<TCPSocket> sockets;
+    ConcurrentLinkedQueue<FutureImpl<TCPSocket>> accepts;
+    ConcurrentLinkedQueue<TCPSocket> sockets;
 
     /**
      * Creates a TCP acceptor for server applications.
@@ -71,7 +72,7 @@ public class TCPAcceptor extends Acceptor<TCPSocket> {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        TCPSocket socket = new TCPSocket(TCPAcceptor.this, ch);
+                        TCPSocket socket = createSocketForImplementation(ch);
                         if(!accepts.isEmpty()) {
                             accepts.poll().postSuccess(socket);
                         } else {
@@ -85,6 +86,10 @@ public class TCPAcceptor extends Acceptor<TCPSocket> {
                 });
         accepts = new ConcurrentLinkedQueue<>();
         sockets = new ConcurrentLinkedQueue<>();
+    }
+
+    protected TCPSocket createSocketForImplementation(SocketChannel ch) throws IOException {
+        return new TCPSocket(this, ch);
     }
 
     @Override

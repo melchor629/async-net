@@ -6,7 +6,7 @@ It is published in the maven central repository, so you can easily use it in you
 
 Gradle
 ```
-compile 'me.melchor9000:async-net:1.0.2'
+compile 'me.melchor9000:async-net:1.0.4'
 ```
 
 Maven
@@ -14,7 +14,7 @@ Maven
 <dependency>
     <groupId>me.melchor9000</groupId>
     <artifactId>async-net</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 

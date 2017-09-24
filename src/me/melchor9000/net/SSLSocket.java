@@ -123,7 +123,7 @@ public class SSLSocket extends TCPSocket {
     /**
      * <p>Creates a SSL socket using the custom options you set in the
      * {@link SSLSocketConfigurator#configure(SslContextBuilder)} method.
-     * All methods available can be found in <a href="https://netty.io/4.1/api/io/netty/handler/ssl/SslContextBuilder.html}">
+     * All methods available can be found in <a href="https://netty.io/4.1/api/io/netty/handler/ssl/SslContextBuilder.html">
      * SslContextBuilder</a>.</p>
      * <p>For enable host identification for HTTPS, you should override
      * {@link SSLSocketConfigurator#changeParameters(SSLParameters)} and set the option

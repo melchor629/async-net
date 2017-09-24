@@ -3,7 +3,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-version = '1.0.3'
+version = '1.0.4'
 group = 'me.melchor9000'
 archivesBaseName = 'async-net'
 

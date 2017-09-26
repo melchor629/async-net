@@ -139,7 +139,7 @@ public class SSLSocket extends TCPSocket {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         SslContextBuilder ctx = SslContextBuilder.forClient();
                         conf.configure(ctx);
-                        SslHandler handler = ctx.build().newHandler(channel.alloc());
+                        SslHandler handler = ctx.build().newHandler(ch.alloc());
                         SSLParameters p = handler.engine().getSSLParameters();
                         SSLParameters np = conf.changeParameters(p);
                         if(np != null) handler.engine().setSSLParameters(np);

@@ -19,6 +19,7 @@
 import me.melchor9000.net.IOService;
 import me.melchor9000.net.Procedure;
 import me.melchor9000.net.resolver.*;
+import me.melchor9000.net.resolver.serverLookup.OracleJREServerProvider;
 
 import java.net.InetAddress;
 
@@ -34,7 +35,7 @@ public class TestDNSResolver {
                 System.out.println("Paco");
             }
         }, 1000);
-        try(DNSResolver resolver = new DNSResolver(service)) {
+        try(DNSResolver resolver = new DNSResolver(service, new OracleJREServerProvider())) {
             System.out.println("www.google.com");
             for(InetAddress address : resolver.resolveV4("www.google.com")) {
                 System.out.print("  ");

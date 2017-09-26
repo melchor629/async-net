@@ -21,6 +21,7 @@ package me.melchor9000.net.resolver;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import me.melchor9000.net.IOService;
+import me.melchor9000.net.resolver.serverLookup.OracleJREServerProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,7 +43,7 @@ public class DNSResolverTest {
     @BeforeClass
     public static void setUp() {
         service = new IOService();
-        resolver = new DNSResolver(service);
+        resolver = new DNSResolver(service, new OracleJREServerProvider());
     }
 
     @AfterClass

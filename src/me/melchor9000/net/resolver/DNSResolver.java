@@ -19,6 +19,7 @@
 package me.melchor9000.net.resolver;
 
 import me.melchor9000.net.*;
+import me.melchor9000.net.resolver.serverLookup.DNSServerProvider;
 
 import java.lang.reflect.Array;
 import java.net.InetAddress;
@@ -35,12 +36,37 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
     private IOService service;
     private List<Request> requests;
     private int tries = 2;
+    private DNSServerProvider lookupList;
 
-    public DNSResolver(IOService service) {
+    /**
+     * Creates a DNSResolver using the DNS servers lookup method.
+     * @param service IOService
+     * @param lookupList One type of DNS server provider
+     * @see DNSServerProvider
+     */
+    public DNSResolver(IOService service, DNSServerProvider lookupList) {
         socket = new UDPSocket(service);
         this.service = service;
         this.requests = new ArrayList<>();
         socket.addOnDataReceivedListener(this);
+        this.lookupList = lookupList;
+    }
+
+    /**
+     * Creates a DNSResolver using the default servers (84.200.69.80 and
+     * 2001:1608:10:25::9249:d69b from <a href="https://dns.watch">dns.watch</a>).
+     * It is recommended to use the {@link #DNSResolver(IOService, DNSServerProvider)}
+     * constructor to fetch the configuration from some system provider.
+     * @param service IOService
+     */
+    @Deprecated
+    public DNSResolver(IOService service) {
+        this(service, new DNSServerProvider() {
+            @Override
+            protected List<InetSocketAddress> getList() {
+                return null;
+            }
+        });
     }
 
     /**
@@ -230,7 +256,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
     }
 
     private void doRequest(final FutureImpl<Iterable<InetAddress>> future, final DNSMessage sentMessage, int type) {
-        final Request r = new Request(future, sentMessage, DNSResolverCache.dnsServers().iterator(), type);
+        final Request r = new Request(future, sentMessage, lookupList.get().iterator(), type);
         requests.add(r);
         future.whenDone(new Callback<Future<Iterable<InetAddress>>>() {
             @Override

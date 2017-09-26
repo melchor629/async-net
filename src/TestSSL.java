@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelOption;
 import me.melchor9000.net.*;
+import me.melchor9000.net.resolver.serverLookup.OracleJREServerProvider;
 
 import javax.swing.*;
 import java.awt.*;
@@ -142,7 +143,7 @@ public class TestSSL {
                 };
 
                 try {
-                    socket.connectAsync(host, puerto).whenDone(l);
+                    socket.connectAsync(host, puerto, new OracleJREServerProvider()).whenDone(l);
                 } catch(Throwable ignore){}
             }
         });

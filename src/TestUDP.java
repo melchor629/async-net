@@ -39,7 +39,7 @@ public class TestUDP {
 
         final String domain = a;
 
-        System.out.println("Requesting " + domain + "...");me.melchor9000.net.resolver.DNSResolverCache.dnsServers();
+        System.out.println("Requesting " + domain + "...");
         System.out.println();
         socket.bind();
 

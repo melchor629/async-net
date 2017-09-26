@@ -27,6 +27,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import me.melchor9000.net.resolver.DNSResolver;
+import me.melchor9000.net.resolver.serverLookup.DNSServerProvider;
 
 import java.lang.reflect.Array;
 import java.net.*;
@@ -142,11 +143,12 @@ public abstract class Socket implements AutoCloseable {
      * {@code hostName} and {@code port}.
      * @param hostName domain of the remote endpoint
      * @param port port of the remote endpoint
+     * @param provider A {@link DNSServerProvider} implementation
      * @throws InterruptedException When this {@link Thread} is interrupted while waiting to connect
      * @throws UnknownHostException If the hostName cannot be resolved
      */
-    public void connect(String hostName, int port) throws UnknownHostException, InterruptedException {
-        connectAsync(hostName, port).sync();
+    public void connect(String hostName, int port, DNSServerProvider provider) throws UnknownHostException, InterruptedException {
+        connectAsync(hostName, port, provider).sync();
     }
 
     /**
@@ -165,11 +167,12 @@ public abstract class Socket implements AutoCloseable {
      * {@code hostName} and {@code port}.
      * @param hostName domain of the remote endpoint
      * @param port port of the remote endpoint
+     * @param provider A {@link DNSServerProvider} implementation
      * @return {@link Future} of the task
      * @throws UnknownHostException If the hostName cannot be resolved
      */
-    public Future<Void> connectAsync(String hostName, final int port) throws UnknownHostException {
-        final DNSResolver resolver = new DNSResolver(service);
+    public Future<Void> connectAsync(String hostName, final int port, DNSServerProvider provider) throws UnknownHostException {
+        final DNSResolver resolver = new DNSResolver(service, provider);
         final Future<?> f[] = (Future<?>[]) Array.newInstance(Future.class, 1);
         final FutureImpl<Void> future = createFuture(new Procedure() {
             @Override

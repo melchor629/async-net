@@ -24,6 +24,7 @@ import me.melchor9000.net.Callback;
 import me.melchor9000.net.Future;
 import me.melchor9000.net.IOService;
 import me.melchor9000.net.TCPSocket;
+import me.melchor9000.net.resolver.serverLookup.OracleJREServerProvider;
 
 import javax.swing.*;
 import java.awt.*;
@@ -145,7 +146,7 @@ public class TestTCP {
                 };
 
                 try {
-                    socket.connectAsync(host, puerto).whenDone(l);
+                    socket.connectAsync(host, puerto, new OracleJREServerProvider()).whenDone(l);
                 } catch(Throwable ignore){}
             }
         });

@@ -23,6 +23,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
@@ -90,7 +91,7 @@ public class SSLSocket extends TCPSocket {
      * security extra, you should use {@link #SSLSocket(IOService, SSLSocketConfigurator)}.</p>
      * @param service {@link IOService} to attach this socket
      */
-    public SSLSocket(IOService service) {
+    public SSLSocket(@NotNull IOService service) {
         super(service);
         bootstrap
                 .handler(new ChannelInitializer<SocketChannel>() {
@@ -113,7 +114,7 @@ public class SSLSocket extends TCPSocket {
      * @param service {@link IOService} to attach this socket
      * @param certificate Certificate chain in {@code .pem} format
      */
-    public SSLSocket(IOService service, final File certificate) {
+    public SSLSocket(@NotNull IOService service, @NotNull final File certificate) {
         super(service);
         bootstrap
                 .handler(new ChannelInitializer<SocketChannel>() {
@@ -136,7 +137,7 @@ public class SSLSocket extends TCPSocket {
      * @param service {@link IOService} to attach this socket
      * @param certificate Certificate chain in {@code .pem} format
      */
-    public SSLSocket(IOService service, final InputStream certificate) {
+    public SSLSocket(@NotNull IOService service, @NotNull final InputStream certificate) {
         super(service);
         bootstrap
                 .handler(new ChannelInitializer<SocketChannel>() {
@@ -161,7 +162,7 @@ public class SSLSocket extends TCPSocket {
      * @param service {@link IOService} to attach this socket
      * @param conf Custom configuration set in {@link SSLSocketConfigurator}
      */
-    public SSLSocket(IOService service, final SSLSocketConfigurator conf) {
+    public SSLSocket(@NotNull IOService service, @NotNull final SSLSocketConfigurator conf) {
         super(service);
         bootstrap
                 .handler(new ChannelInitializer<SocketChannel>() {

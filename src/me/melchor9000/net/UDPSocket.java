@@ -24,6 +24,7 @@ import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
@@ -103,19 +104,20 @@ public class UDPSocket extends Socket {
     }
 
     @Override
-    public void bind(SocketAddress local) {
+    public void bind(@NotNull SocketAddress local) {
         super.bind(local);
         socket = (DatagramChannel) channel;
     }
 
     @Override
-    public void connect(SocketAddress endpoint) throws InterruptedException {
+    public void connect(@NotNull SocketAddress endpoint) throws InterruptedException {
         super.connect(endpoint);
         socket = (DatagramChannel) channel;
     }
 
+    @NotNull
     @Override
-    public Future<Void> connectAsync(SocketAddress endpoint) {
+    public Future<Void> connectAsync(@NotNull SocketAddress endpoint) {
         return super.connectAsync(endpoint).whenDone(new Callback<Future<Void>>() {
             @Override
             public void call(Future<Void> arg) {
@@ -190,6 +192,7 @@ public class UDPSocket extends Socket {
         return receiveFrom(data, data.writableBytes());
     }
 
+    @NotNull
     @Override
     public Future<Long> receiveAsync(ByteBuf data, int bytes) {
         @SuppressWarnings("unchecked") final Future<Packet> leFuture[] = (FutureImpl<Packet>[]) Array.newInstance(FutureImpl.class, 1);

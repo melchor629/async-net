@@ -19,6 +19,7 @@
 package me.melchor9000.net;
 
 import io.netty.channel.socket.SocketChannel;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +66,7 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param publicKey a {@link File} to the public certificate in {@code .pem} format
      * @param privateKey a {@link File} to the public certificate in {@code .pem} format
      */
-    public SSLAcceptor(IOService service, File publicKey, File privateKey) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull File publicKey, @NotNull File privateKey) {
         this(service, publicKey, privateKey, null);
     }
 
@@ -76,7 +77,7 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param publicKey a {@link InputStream} to the public certificate in {@code .pem} format
      * @param privateKey a {@link InputStream} to the public certificate in {@code .pem} format
      */
-    public SSLAcceptor(IOService service, InputStream publicKey, InputStream privateKey) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull InputStream publicKey, @NotNull InputStream privateKey) {
         this(service, publicKey, privateKey, null);
     }
 
@@ -88,10 +89,10 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param privateKey a {@link File} to the public certificate in {@code .pem} format
      * @param password the private key passphrase
      */
-    public SSLAcceptor(IOService service, File publicKey, File privateKey, String password) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull File publicKey, @NotNull File privateKey, String password) {
         super(service);
-        if(publicKey == null || !publicKey.isFile()) throw new IllegalArgumentException("publicKey cannot be null and must exist");
-        if(privateKey == null || !privateKey.isFile()) throw new IllegalArgumentException("privateKey cannot be null and must exist");
+        if(!publicKey.isFile()) throw new IllegalArgumentException("publicKey must exist");
+        if(!privateKey.isFile()) throw new IllegalArgumentException("privateKey must exist");
         this.publicKeyFile = publicKey;
         this.privateKeyFile = privateKey;
         this.passwd = password;
@@ -105,7 +106,7 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param privateKey a {@link InputStream} to the public certificate in {@code .pem} format
      * @param password the private key passphrase
      */
-    public SSLAcceptor(IOService service, InputStream publicKey, InputStream privateKey, String password) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull InputStream publicKey, @NotNull InputStream privateKey, String password) {
         super(service);
         this.publicKeyInputStream = publicKey;
         this.privateKeyInputStream = privateKey;
@@ -120,7 +121,7 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param publicKey a {@link File} to the public certificate in {@code .pem} format
      * @param privateKey a {@link File} to the public certificate in {@code .pem} format
      */
-    public SSLAcceptor(IOService service, IOService worker, File publicKey, File privateKey) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull IOService worker, @NotNull File publicKey, @NotNull File privateKey) {
         this(service, worker, publicKey, privateKey, null);
     }
 
@@ -132,7 +133,7 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param publicKey a {@link InputStream} to the public certificate in {@code .pem} format
      * @param privateKey a {@link InputStream} to the public certificate in {@code .pem} format
      */
-    public SSLAcceptor(IOService service, IOService worker, InputStream publicKey, InputStream privateKey) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull IOService worker, @NotNull InputStream publicKey, @NotNull InputStream privateKey) {
         this(service, worker, publicKey, privateKey, null);
     }
 
@@ -145,10 +146,10 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param privateKey a {@link File} to the public certificate in {@code .pem} format
      * @param password the private key passphrase
      */
-    public SSLAcceptor(IOService service, IOService worker, File publicKey, File privateKey, String password) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull IOService worker, @NotNull File publicKey, @NotNull File privateKey, String password) {
         super(service, worker);
-        if(publicKey == null || !publicKey.isFile()) throw new IllegalArgumentException("publicKey cannot be null and must exist");
-        if(privateKey == null || !privateKey.isFile()) throw new IllegalArgumentException("privateKey cannot be null and must exist");
+        if(!publicKey.isFile()) throw new IllegalArgumentException("publicKey must exist");
+        if(!privateKey.isFile()) throw new IllegalArgumentException("privateKey must exist");
         this.publicKeyFile = publicKey;
         this.privateKeyFile = privateKey;
         this.passwd = password;
@@ -163,7 +164,7 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param privateKey a {@link InputStream} to the public certificate in {@code .pem} format
      * @param password the private key passphrase
      */
-    public SSLAcceptor(IOService service, IOService worker, InputStream publicKey, InputStream privateKey, String password) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull IOService worker, @NotNull InputStream publicKey, @NotNull InputStream privateKey, String password) {
         super(service, worker);
         this.publicKeyInputStream = publicKey;
         this.privateKeyInputStream = privateKey;
@@ -176,7 +177,7 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param service {@link IOService} for the acceptor and the sockets
      * @param configurator Allows custom configuration for the {@link SSLSocket}{@code s}
      */
-    public SSLAcceptor(IOService service, SSLAcceptorConfigurator configurator) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull SSLAcceptorConfigurator configurator) {
         super(service);
         this.configurator = configurator;
     }
@@ -188,13 +189,14 @@ public class SSLAcceptor extends TCPAcceptor {
      * @param worker {@link IOService} for the sockets
      * @param configurator Allows custom configuration for the {@link SSLSocket}{@code s}
      */
-    public SSLAcceptor(IOService service, IOService worker, SSLAcceptorConfigurator configurator) {
+    public SSLAcceptor(@NotNull IOService service, @NotNull IOService worker, @NotNull SSLAcceptorConfigurator configurator) {
         super(service, worker);
         this.configurator = configurator;
     }
 
+    @NotNull
     @Override
-    protected TCPSocket createSocketForImplementation(SocketChannel ch) throws IOException {
+    protected TCPSocket createSocketForImplementation(@NotNull SocketChannel ch) throws IOException {
         if(publicKeyFile != null) {
             return new SSLSocket(this, ch, this.publicKeyFile, this.privateKeyFile, this.passwd);
         } else if(publicKeyInputStream != null) {

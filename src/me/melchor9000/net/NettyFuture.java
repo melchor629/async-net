@@ -19,6 +19,8 @@
 package me.melchor9000.net;
 
 import io.netty.util.concurrent.GenericFutureListener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +35,7 @@ class NettyFuture<ReturnType> implements Future<ReturnType> {
     private final Procedure whenCancelled;
     private Future<?> timeoutFuture;
 
-    NettyFuture(io.netty.util.concurrent.Future<ReturnType> future, IOService service, Procedure whenCancelled) {
+    NettyFuture(@NotNull io.netty.util.concurrent.Future<ReturnType> future, @NotNull IOService service, @Nullable Procedure whenCancelled) {
         this.future = future;
         this.service = service;
         this.whenCancelled = whenCancelled;
@@ -45,7 +47,7 @@ class NettyFuture<ReturnType> implements Future<ReturnType> {
         });
     }
 
-    NettyFuture(io.netty.util.concurrent.Future<ReturnType> future, IOService service) {
+    NettyFuture(@NotNull io.netty.util.concurrent.Future<ReturnType> future, @NotNull IOService service) {
         this(future, service, null);
     }
 
@@ -70,8 +72,8 @@ class NettyFuture<ReturnType> implements Future<ReturnType> {
         future.cancel(mayInterrupt);
     }
 
-    public Future<ReturnType> whenDone(final Callback<Future<ReturnType>> cbk) {
-        if(cbk == null) throw new NullPointerException("Callback cannot be null");
+    @NotNull
+    public Future<ReturnType> whenDone(@NotNull final Callback<Future<ReturnType>> cbk) {
         future.addListener(new GenericFutureListener<io.netty.util.concurrent.Future<? super ReturnType>>() {
             @Override
             public void operationComplete(io.netty.util.concurrent.Future<? super ReturnType> future) throws Exception {
@@ -88,6 +90,7 @@ class NettyFuture<ReturnType> implements Future<ReturnType> {
         return this;
     }
 
+    @NotNull
     @Override
     public Future<ReturnType> setTimeout(long milliseconds) {
         if(milliseconds <= 0) throw new IllegalArgumentException("Only positive non 0 values are accepted");
@@ -145,6 +148,7 @@ class NettyFuture<ReturnType> implements Future<ReturnType> {
         return ret;
     }
 
+    @NotNull
     public Future<ReturnType> sync() {
         future.syncUninterruptibly();
         return this;

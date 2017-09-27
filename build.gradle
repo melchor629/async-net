@@ -20,6 +20,7 @@ dependencies {
     compile 'io.netty:netty-buffer:4.1.15.Final'
     compile 'io.netty:netty-transport:4.1.15.Final'
     compile 'io.netty:netty-handler:4.1.15.Final'
+    compile group: 'org.jetbrains', name: 'annotations', version: '13.0'
 
     testCompile 'junit:junit:4.12'
 }

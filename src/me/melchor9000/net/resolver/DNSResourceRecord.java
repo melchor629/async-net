@@ -21,6 +21,7 @@ package me.melchor9000.net.resolver;
 import io.netty.buffer.ByteBuf;
 import me.melchor9000.net.DataNotRepresentsObject;
 import me.melchor9000.net.Serializable;
+import org.jetbrains.annotations.NotNull;
 
 import static me.melchor9000.net.resolver.DNSUtils.*;
 
@@ -97,7 +98,7 @@ public class DNSResourceRecord extends Serializable {
     }
 
     @Override
-    public void toByteBuf(ByteBuf buffer) {
+    public void toByteBuf(@NotNull ByteBuf buffer) {
         writeName(buffer, name);
         buffer.writeShort(type);
         buffer.writeShort(nclass);
@@ -107,7 +108,7 @@ public class DNSResourceRecord extends Serializable {
     }
 
     @Override
-    public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+    public void fromByteBuf(@NotNull ByteBuf buffer) throws DataNotRepresentsObject {
         name = readName(buffer);
         type = rs(buffer);
         nclass = rs(buffer);

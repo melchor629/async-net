@@ -18,6 +18,9 @@
 
 package me.melchor9000.net;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -69,7 +72,7 @@ public interface Future<ReturnType> {
      * @param cbk callback
      * @return this same {@link Future}
      */
-    Future<ReturnType> whenDone(final Callback<Future<ReturnType>> cbk);
+    @NotNull Future<ReturnType> whenDone(final @NotNull Callback<Future<ReturnType>> cbk);
 
     /**
      * When set to a positive value (0 not included), will set a timeout,
@@ -87,7 +90,7 @@ public interface Future<ReturnType> {
      * @param milliseconds time to timeout the task
      * @return this same {@link Future}
      */
-    Future<ReturnType> setTimeout(long milliseconds);
+    @NotNull Future<ReturnType> setTimeout(long milliseconds);
 
     /**
      * Returns the value of the future if it is done. If not, then
@@ -151,5 +154,5 @@ public interface Future<ReturnType> {
      * the cause of the failure.
      * @return this same {@link Future}
      */
-    Future<ReturnType> sync();
+    @NotNull Future<ReturnType> sync();
 }

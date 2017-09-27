@@ -20,6 +20,7 @@ package me.melchor9000.net.resolver;
 
 import me.melchor9000.net.*;
 import me.melchor9000.net.resolver.serverLookup.DNSServerProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
 import java.net.InetAddress;
@@ -44,7 +45,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
      * @param lookupList One type of DNS server provider
      * @see DNSServerProvider
      */
-    public DNSResolver(IOService service, DNSServerProvider lookupList) {
+    public DNSResolver(@NotNull IOService service, @NotNull DNSServerProvider lookupList) {
         socket = new UDPSocket(service);
         this.service = service;
         this.requests = new ArrayList<>();
@@ -75,7 +76,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
      * @param name domain name to resolveV4
      * @return a {@link Future} representing the task
      */
-    public Future<Iterable<InetAddress>> resolveAsyncV4(final String name) {
+    public @NotNull Future<Iterable<InetAddress>> resolveAsyncV4(@NotNull final String name) {
         @SuppressWarnings("unchecked")
         final FutureImpl<Iterable<InetAddress>> f[] = (FutureImpl<Iterable<InetAddress>>[]) Array.newInstance(FutureImpl.class, 1);
         final FutureImpl<Iterable<InetAddress>> future = f[0] = new FutureImpl<>(service, new Procedure() {
@@ -109,7 +110,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
      * @param name domain name to resolveV4
      * @return a {@link Future} representing the task
      */
-    public Future<Iterable<InetAddress>> resolveAsyncV6(final String name) {
+    public @NotNull Future<Iterable<InetAddress>> resolveAsyncV6(@NotNull final String name) {
         @SuppressWarnings("unchecked")
         final FutureImpl<Iterable<InetAddress>> f[] = (FutureImpl<Iterable<InetAddress>>[]) Array.newInstance(FutureImpl.class, 1);
         final FutureImpl<Iterable<InetAddress>> future = f[0] = new FutureImpl<>(service, new Procedure() {
@@ -143,7 +144,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
      * @param name domain name to resolveV4
      * @return a {@link Future} representing the task
      */
-    public Future<Iterable<InetAddress>> resolveAsync(final String name) {
+    public @NotNull Future<Iterable<InetAddress>> resolveAsync(@NotNull final String name) {
         @SuppressWarnings("unchecked")
         final FutureImpl<Iterable<InetAddress>> f[] = (FutureImpl<Iterable<InetAddress>>[]) Array.newInstance(FutureImpl.class, 1);
         final FutureImpl<Iterable<InetAddress>> future = f[0] = new FutureImpl<>(service, new Procedure() {
@@ -200,7 +201,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
      * @param name domain name to resolveV4
      * @return an {@link Iterable} object with the IP addresses or null
      */
-    public Iterable<InetAddress> resolveV4(String name) {
+    public @NotNull Iterable<InetAddress> resolveV4(@NotNull String name) {
         return resolveAsyncV4(name).sync().getValueNow();
     }
 
@@ -210,7 +211,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
      * @param name domain name to resolveV4
      * @return an {@link Iterable} object with the IP addresses or null
      */
-    public Iterable<InetAddress> resolveV6(String name) {
+    public @NotNull Iterable<InetAddress> resolveV6(@NotNull String name) {
         return resolveAsyncV6(name).sync().getValueNow();
     }
 
@@ -220,7 +221,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
      * @param name domain name to resolveV4
      * @return a {@link Future} representing the task
      */
-    public Iterable<InetAddress> resolve(String name) {
+    public @NotNull Iterable<InetAddress> resolve(@NotNull String name) {
         return resolveAsync(name).sync().getValueNow();
     }
 
@@ -233,7 +234,7 @@ public class DNSResolver implements AutoCloseable, Callback<Socket> {
      * Closes the resolver asynchronously
      * @return a {@link Future} representing the close task
      */
-    public Future<Void> closeAsync() {
+    public @NotNull Future<Void> closeAsync() {
         return socket.closeAsync();
     }
 

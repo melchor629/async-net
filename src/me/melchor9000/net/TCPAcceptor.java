@@ -21,6 +21,7 @@ package me.melchor9000.net;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -88,7 +89,7 @@ public class TCPAcceptor extends Acceptor<TCPSocket> {
         sockets = new ConcurrentLinkedQueue<>();
     }
 
-    protected TCPSocket createSocketForImplementation(SocketChannel ch) throws IOException {
+    protected @NotNull TCPSocket createSocketForImplementation(@NotNull SocketChannel ch) throws IOException {
         return new TCPSocket(this, ch);
     }
 

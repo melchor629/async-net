@@ -20,6 +20,7 @@ package me.melchor9000.net.resolver;
 
 import io.netty.buffer.ByteBuf;
 import me.melchor9000.net.DataNotRepresentsObject;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
@@ -30,11 +31,11 @@ import java.net.UnknownHostException;
 public class DNSA extends DNSResourceData {
     private Inet4Address address;
 
-    public Inet4Address getAddress() {
+    public @NotNull Inet4Address getAddress() {
         return address;
     }
 
-    public void setAddress(Inet4Address address) {
+    public void setAddress(@NotNull Inet4Address address) {
         this.address = address;
     }
 
@@ -58,12 +59,12 @@ public class DNSA extends DNSResourceData {
     }
 
     @Override
-    public void toByteBuf(ByteBuf buffer) {
+    public void toByteBuf(@NotNull ByteBuf buffer) {
         buffer.writeBytes(address.getAddress());
     }
 
     @Override
-    public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+    public void fromByteBuf(@NotNull ByteBuf buffer) throws DataNotRepresentsObject {
         if(buffer.readableBytes() < 4) throw new DataNotRepresentsObject("DNS RR type A doesn't contain data", buffer);
         byte ip[] = new byte[4];
         buffer.readBytes(ip);

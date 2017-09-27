@@ -18,6 +18,9 @@
 
 package me.melchor9000.net;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -93,8 +96,9 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         lock.unlock();
     }
 
+    @NotNull
     @Override
-    public Future<ReturnType> whenDone(Callback<Future<ReturnType>> cbk) {
+    public Future<ReturnType> whenDone(@NotNull Callback<Future<ReturnType>> cbk) {
         lock.lock();
         if(!done.get()) {
             listeners.add(cbk);
@@ -106,6 +110,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         return this;
     }
 
+    @NotNull
     @Override
     public Future<ReturnType> setTimeout(long milliseconds) {
         if(milliseconds <= 0) throw new IllegalArgumentException("Only positive non 0 values are accepted");
@@ -192,6 +197,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         return returnValue;
     }
 
+    @NotNull
     @Override
     public Future<ReturnType> sync() {
         if(!done.get()) {
@@ -203,7 +209,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         return this;
     }
 
-    public void postSuccess(ReturnType result) {
+    public void postSuccess(@Nullable ReturnType result) {
         if(isDone()) throw new IllegalStateException("Task is already done");
         lock.lock();
         if(timeoutFuture != null) timeoutFuture.cancel(false);
@@ -216,7 +222,7 @@ public class FutureImpl<ReturnType> implements Future<ReturnType> {
         lock.unlock();
     }
 
-    public void postError(Throwable cause) {
+    public void postError(@NotNull Throwable cause) {
         if(isDone()) throw new IllegalStateException("Task is already done");
         lock.lock();
         if(timeoutFuture != null) timeoutFuture.cancel(false);

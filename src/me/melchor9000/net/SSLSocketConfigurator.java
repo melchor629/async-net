@@ -1,6 +1,8 @@
 package me.melchor9000.net;
 
 import io.netty.handler.ssl.SslContextBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.SSLParameters;
 
@@ -14,7 +16,7 @@ public abstract class SSLSocketConfigurator {
      * @param builder {@link SslContextBuilder} to configure
      * @see <a href="https://netty.io/4.1/api/io/netty/handler/ssl/SslContextBuilder.html">SslContextBuilder</a> documentation
      */
-    public abstract void configure(SslContextBuilder builder);
+    public abstract void configure(@NotNull SslContextBuilder builder);
 
     /**
      * Allows to change some parameters in the SSL engine, like enable
@@ -23,7 +25,7 @@ public abstract class SSLSocketConfigurator {
      * @return the parameters to set in the engine
      * @see <a href="http://docs.oracle.com/javase/7/docs/api/javax/net/ssl/SSLParameters.html">SSLParameters</a> documentation
      */
-    public SSLParameters changeParameters(SSLParameters p) {
+    public @Nullable SSLParameters changeParameters(@NotNull SSLParameters p) {
         return null;
     }
 

@@ -19,23 +19,47 @@
 package me.melchor9000.net;
 
 import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Some utilities when reading and writing stream based sockets
  */
 public class SocketUtil {
 
-    public static void read(Socket socket, ByteBuf buffer, int bytes) throws Throwable {
+    /**
+     * Reads exactly {@code bytes} bytes of data from the socket synchronously.
+     * @param socket Socket to read from
+     * @param buffer Buffer to write the data
+     * @param bytes Number of bytes to read
+     * @throws Throwable If the operation fails
+     */
+    public static void read(@NotNull Socket socket, @NotNull ByteBuf buffer, int bytes) throws Throwable {
         while(bytes != 0) {
             bytes -= socket.receive(buffer, bytes);
         }
     }
 
-    public static void read(Socket socket, ByteBuf buffer) throws Throwable {
+    /**
+     * Reads from the socket exactly the number of writable bytes
+     * {@link ByteBuf#writableBytes()} of the buffer into the buffer synchronously.
+     * @param socket Socket to read from
+     * @param buffer Buffer to write the data
+     * @throws Throwable If the operation fails
+     */
+    public static void read(@NotNull Socket socket, @NotNull ByteBuf buffer) throws Throwable {
         read(socket, buffer, buffer.writableBytes());
     }
 
-    public static Future<Long> readAsync(final Socket socket, final ByteBuf buffer, final int bytes) {
+    /**
+     * Reads exactly {@code bytes} bytes of data from the socket asynchronously
+     * and returns a {@link Future} with the result of the task. If there's an error,
+     * everything that could read is kept inside the buffer.
+     * @param socket Socket to read from
+     * @param buffer Buffer to write the data
+     * @param bytes Number of bytes to read
+     * @return a {@link Future}
+     */
+    public static @NotNull Future<Long> readAsync(@NotNull final Socket socket, @NotNull final ByteBuf buffer, final int bytes) {
         final long read[] = new long[] { (long) bytes };
         final FutureImpl<Long> future = new FutureImpl<>(socket.service, null);
         final Callback<Future<Long>> c = new Callback<Future<Long>>() {
@@ -58,7 +82,15 @@ public class SocketUtil {
         return future;
     }
 
-    public static Future<Long> readAsync(Socket socket, ByteBuf buffer) {
+    /**
+     * Reads from the socket exactly the number of writable bytes
+     * {@link ByteBuf#writableBytes()} of the buffer into the buffer asynchronously.
+     * If there's an error, everything that could read is kept inside the buffer.
+     * @param socket Socket to read from
+     * @param buffer Buffer to write the data
+     * @return a {@link Future}
+     */
+    public static Future<Long> readAsync(@NotNull Socket socket, @NotNull ByteBuf buffer) {
         return readAsync(socket, buffer, buffer.writableBytes());
     }
 }

@@ -21,6 +21,7 @@ package me.melchor9000.net.resolver;
 import io.netty.buffer.ByteBuf;
 import me.melchor9000.net.DataNotRepresentsObject;
 import me.melchor9000.net.Serializable;
+import org.jetbrains.annotations.NotNull;
 
 import static me.melchor9000.net.resolver.DNSUtils.*;
 
@@ -32,7 +33,7 @@ public class DNSQuery extends Serializable {
     private int type;
     private int mclass;
 
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -52,7 +53,7 @@ public class DNSQuery extends Serializable {
         return DNSUtils.typeToString(type);
     }
 
-    public void setType(String type) {
+    public void setType(@NotNull String type) {
         this.type = DNSUtils.typeToInt(type);
     }
 
@@ -68,7 +69,7 @@ public class DNSQuery extends Serializable {
         return DNSUtils.classToString(type);
     }
 
-    public void setClass(String type) {
+    public void setClass(@NotNull String type) {
         this.mclass = DNSUtils.classToInt(type);
     }
 
@@ -78,14 +79,14 @@ public class DNSQuery extends Serializable {
     }
 
     @Override
-    public void toByteBuf(ByteBuf buffer) {
+    public void toByteBuf(@NotNull ByteBuf buffer) {
         writeName(buffer, name);
         buffer.writeShort(type);
         buffer.writeShort(mclass);
     }
 
     @Override
-    public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+    public void fromByteBuf(@NotNull ByteBuf buffer) throws DataNotRepresentsObject {
         if(buffer.readableBytes() < 4) throw new DataNotRepresentsObject("DNS Query is invalid", buffer);
         name = readName(buffer);
         type = buffer.readUnsignedShort();

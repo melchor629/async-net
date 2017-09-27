@@ -20,6 +20,7 @@ package me.melchor9000.net.resolver;
 
 import io.netty.buffer.ByteBuf;
 import me.melchor9000.net.DataNotRepresentsObject;
+import org.jetbrains.annotations.NotNull;
 
 import static me.melchor9000.net.resolver.DNSUtils.readName;
 import static me.melchor9000.net.resolver.DNSUtils.writeName;
@@ -30,11 +31,11 @@ import static me.melchor9000.net.resolver.DNSUtils.writeName;
 public class DNSCNAME extends DNSResourceData {
     private String cname;
 
-    public String getCname() {
+    public @NotNull String getCname() {
         return cname;
     }
 
-    public void setCname(String cname) {
+    public void setCname(@NotNull String cname) {
         this.cname = cname;
     }
 
@@ -48,12 +49,12 @@ public class DNSCNAME extends DNSResourceData {
     }
 
     @Override
-    public void toByteBuf(ByteBuf buffer) {
+    public void toByteBuf(@NotNull ByteBuf buffer) {
         writeName(buffer, cname);
     }
 
     @Override
-    public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+    public void fromByteBuf(@NotNull ByteBuf buffer) throws DataNotRepresentsObject {
         cname = readName(buffer);
     }
 

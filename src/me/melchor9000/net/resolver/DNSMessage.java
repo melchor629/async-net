@@ -21,6 +21,7 @@ package me.melchor9000.net.resolver;
 import io.netty.buffer.ByteBuf;
 import me.melchor9000.net.DataNotRepresentsObject;
 import me.melchor9000.net.Serializable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,7 +174,7 @@ public class DNSMessage extends Serializable {
     }
 
     @Override
-    public void toByteBuf(ByteBuf buffer) {
+    public void toByteBuf(@NotNull ByteBuf buffer) {
         int flags = 0;
         if(queryOrResponse) flags |= 0x8000;
         flags |= (opcode << 11) & 0x7800;
@@ -197,7 +198,7 @@ public class DNSMessage extends Serializable {
     }
 
     @Override
-    public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+    public void fromByteBuf(@NotNull ByteBuf buffer) throws DataNotRepresentsObject {
         id = rs(buffer);
         int flags = rs(buffer);
         queryOrResponse = (flags & 0x8000) != 0;

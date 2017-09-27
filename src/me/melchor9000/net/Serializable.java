@@ -2,6 +2,7 @@ package me.melchor9000.net;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Objects that can be serialized to and from a {@link ByteBuf},
@@ -18,14 +19,14 @@ public abstract class Serializable {
      * Writes the data of this object into the {@link ByteBuf}.
      * @param buffer buffer to store the data
      */
-    public abstract void toByteBuf(ByteBuf buffer);
+    public abstract void toByteBuf(@NotNull ByteBuf buffer);
 
     /**
      * Creates a {@link ByteBuf} and stores inside it the data
      * of this object.
      * @return a {@link ByteBuf} with the object serialized
      */
-    public ByteBuf toByteBuf() {
+    public @NotNull ByteBuf toByteBuf() {
         ByteBuf buf = Unpooled.buffer(byteBufSize());
         toByteBuf(buf);
         return buf;
@@ -39,5 +40,5 @@ public abstract class Serializable {
      * @throws DataNotRepresentsObject If the buffer data doesn't
      * represent the object
      */
-    public abstract void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject;
+    public abstract void fromByteBuf(@NotNull ByteBuf buffer) throws DataNotRepresentsObject;
 }

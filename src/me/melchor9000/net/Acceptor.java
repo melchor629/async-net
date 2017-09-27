@@ -21,6 +21,8 @@ package me.melchor9000.net;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -35,12 +37,12 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
     protected ServerBootstrap bootstrap;
     protected Callback<SocketType> onConnection;
 
-    Acceptor(IOService service) {
+    Acceptor(@NotNull IOService service) {
         this.service = service;
         bootstrap = new ServerBootstrap().group(service.group);
     }
 
-    Acceptor(IOService serverService, IOService workerService) {
+    Acceptor(@NotNull IOService serverService, @NotNull IOService workerService) {
         this.service = workerService;
         bootstrap = new ServerBootstrap().group(serverService.group, workerService.group);
     }
@@ -54,7 +56,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * Stops the acceptor asynchronously.
      * @return a {@link Future} for the close task
      */
-    public Future<Void> closeAsync() {
+    public @NotNull Future<Void> closeAsync() {
         checkSocketCreated("closeAsync");
         return createFuture(channel.close());
     }
@@ -71,7 +73,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * Returns a {@link Future} that it results when the server is closed
      * @return a {@link Future} with the close task
      */
-    public Future<Void> onClose() {
+    public @NotNull Future<Void> onClose() {
         checkSocketCreated("onClose");
         return createFuture(channel.closeFuture());
     }
@@ -81,7 +83,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * @param address address to bind
      * @throws InterruptedException if it is interrupted
      */
-    public void bind(SocketAddress address) throws InterruptedException {
+    public void bind(@NotNull SocketAddress address) throws InterruptedException {
         if(bootstrap != null) {
             channel = bootstrap.bind(address).sync().channel();
             bootstrap = null;
@@ -96,7 +98,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * @param port port
      * @throws InterruptedException if it is interrupted
      */
-    public void bind(InetAddress address, int port) throws InterruptedException {
+    public void bind(@NotNull InetAddress address, int port) throws InterruptedException {
         if(bootstrap != null) {
             channel = bootstrap.bind(address, port).sync().channel();
             bootstrap = null;
@@ -123,7 +125,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * Accepts a connection from any client and returns the {@code Socket}.
      * @return a {@link Future} with the accept task
      */
-    public abstract Future<SocketType> acceptAsync();
+    public abstract @NotNull Future<SocketType> acceptAsync();
 
     /**
      * Waits until someone is connected to the acceptor, and returns its
@@ -131,7 +133,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * @return the {@link Socket} of the connection
      * @throws Exception if something bad happened
      */
-    public SocketType accept() throws Exception {
+    public @NotNull SocketType accept() throws Exception {
         return acceptAsync().sync().getValue();
     }
 
@@ -143,7 +145,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * calls, not in the listener.
      * @param cbk a listener that will be called when a new connection occurs
      */
-    public void setOnConnectionListener(Callback<SocketType> cbk) {
+    public void setOnConnectionListener(@Nullable Callback<SocketType> cbk) {
         onConnection = cbk;
     }
 
@@ -154,7 +156,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * @param <T> type of the value for the option
      * @return true if could be changed
      */
-    public <T> boolean setOption(ChannelOption<T> option, T value) {
+    public <T> boolean setOption(@NotNull ChannelOption<T> option, @NotNull T value) {
         if(bootstrap != null)
             bootstrap.option(option, value);
         else
@@ -170,7 +172,7 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
      * @param <T> type of the value for the option
      * @throws IllegalStateException If the server is already bound
      */
-    public <T> void setChildOption(ChannelOption<T> option, T value) {
+    public <T> void setChildOption(@NotNull ChannelOption<T> option, @NotNull T value) {
         if(bootstrap != null)
             bootstrap.option(option, value);
         else
@@ -186,11 +188,11 @@ public abstract class Acceptor<SocketType extends Socket> implements AutoCloseab
         if(channel == null) throw new SocketNotCreated("Cannot call " + method + " before creating the Socket", null);
     }
 
-    protected <ReturnType> FutureImpl<ReturnType> createFuture(Procedure whenCancelled) {
+    protected @NotNull <ReturnType> FutureImpl<ReturnType> createFuture(@NotNull Procedure whenCancelled) {
         return new FutureImpl<>(service, whenCancelled);
     }
 
-    protected <ReturnType> Future<ReturnType> createFuture(io.netty.util.concurrent.Future<ReturnType> n) {
+    protected @NotNull <ReturnType> Future<ReturnType> createFuture(@NotNull io.netty.util.concurrent.Future<ReturnType> n) {
         return new NettyFuture<>(n, service, null);
     }
 }

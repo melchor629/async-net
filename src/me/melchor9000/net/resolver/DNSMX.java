@@ -20,6 +20,7 @@ package me.melchor9000.net.resolver;
 
 import io.netty.buffer.ByteBuf;
 import me.melchor9000.net.DataNotRepresentsObject;
+import org.jetbrains.annotations.NotNull;
 
 import static me.melchor9000.net.resolver.DNSUtils.readName;
 import static me.melchor9000.net.resolver.DNSUtils.writeName;
@@ -39,11 +40,11 @@ public class DNSMX extends DNSResourceData {
         this.preference = preference;
     }
 
-    public String getExchange() {
+    public @NotNull String getExchange() {
         return exchange;
     }
 
-    public void setExchange(String exchange) {
+    public void setExchange(@NotNull String exchange) {
         this.exchange = exchange;
     }
 
@@ -57,13 +58,13 @@ public class DNSMX extends DNSResourceData {
     }
 
     @Override
-    public void toByteBuf(ByteBuf buffer) {
+    public void toByteBuf(@NotNull ByteBuf buffer) {
         buffer.writeShort(preference);
         writeName(buffer, exchange);
     }
 
     @Override
-    public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+    public void fromByteBuf(@NotNull ByteBuf buffer) throws DataNotRepresentsObject {
         if(buffer.readableBytes() < 2) throw new DataNotRepresentsObject("DNS RR type MX doesn't contain data", buffer);
         preference = buffer.readUnsignedShort();
         exchange = readName(buffer);

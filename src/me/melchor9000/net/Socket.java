@@ -28,6 +28,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import me.melchor9000.net.resolver.DNSResolver;
 import me.melchor9000.net.resolver.serverLookup.DNSServerProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
 import java.net.*;
@@ -45,13 +46,13 @@ public abstract class Socket implements AutoCloseable {
     protected long bytesRead, bytesWrote;
     private List<Callback<Socket>> readNotifications;
 
-    Socket(IOService service) {
+    Socket(@NotNull IOService service) {
         this.service = service;
         this.bootstrap = new Bootstrap().group(service.group);
         readNotifications = new ArrayList<>();
     }
 
-    Socket(IOService service, Channel channel) {
+    Socket(@NotNull IOService service, @NotNull Channel channel) {
         this.service = service;
         this.channel = channel;
         readNotifications = new ArrayList<>();
@@ -73,7 +74,7 @@ public abstract class Socket implements AutoCloseable {
      * calls {@code cbk} with the result, either successful or failure.
      * @return Future about the task
      */
-    public Future<Void> closeAsync() {
+    public @NotNull Future<Void> closeAsync() {
         checkSocketCreated("closeAsync");
         return createFuture(channel.close());
     }
@@ -83,7 +84,7 @@ public abstract class Socket implements AutoCloseable {
      * this could fail.
      * @param local address to bind
      */
-    public void bind(SocketAddress local)  {
+    public void bind(@NotNull SocketAddress local)  {
         channel = bootstrap.bind(local).syncUninterruptibly().channel();
         bootstrap = null;
     }
@@ -104,7 +105,7 @@ public abstract class Socket implements AutoCloseable {
      * @param endpoint remote endpoint
      * @throws InterruptedException When this {@link Thread} is interrupted
      */
-    public void connect(SocketAddress endpoint) throws InterruptedException  {
+    public void connect(@NotNull SocketAddress endpoint) throws InterruptedException  {
         channel = bootstrap.connect(endpoint).sync().channel();
         bootstrap = null;
     }
@@ -115,7 +116,7 @@ public abstract class Socket implements AutoCloseable {
      * @param endpoint remote endpoint to connect
      * @return {@link Future} of the task
      */
-    public Future<Void> connectAsync(SocketAddress endpoint) {
+    public @NotNull Future<Void> connectAsync(@NotNull SocketAddress endpoint) {
         return createFuture(bootstrap.connect(endpoint).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -134,7 +135,7 @@ public abstract class Socket implements AutoCloseable {
      * @param port port of the remote endpoint
      * @throws InterruptedException When this {@link Thread} is interrupted while waiting to connect
      */
-    public void connect(InetAddress address, int port) throws InterruptedException {
+    public void connect(@NotNull InetAddress address, int port) throws InterruptedException {
         connect(new InetSocketAddress(address, port));
     }
 
@@ -147,7 +148,7 @@ public abstract class Socket implements AutoCloseable {
      * @throws InterruptedException When this {@link Thread} is interrupted while waiting to connect
      * @throws UnknownHostException If the hostName cannot be resolved
      */
-    public void connect(String hostName, int port, DNSServerProvider provider) throws UnknownHostException, InterruptedException {
+    public void connect(@NotNull String hostName, int port, @NotNull DNSServerProvider provider) throws UnknownHostException, InterruptedException {
         connectAsync(hostName, port, provider).sync();
     }
 
@@ -158,7 +159,7 @@ public abstract class Socket implements AutoCloseable {
      * @param port port of the remote endpoint
      * @return {@link Future} of the task
      */
-    public Future<Void> connectAsync(InetAddress address, int port) {
+    public @NotNull Future<Void> connectAsync(@NotNull InetAddress address, int port) {
         return connectAsync(new InetSocketAddress(address, port));
     }
 
@@ -171,7 +172,7 @@ public abstract class Socket implements AutoCloseable {
      * @return {@link Future} of the task
      * @throws UnknownHostException If the hostName cannot be resolved
      */
-    public Future<Void> connectAsync(String hostName, final int port, DNSServerProvider provider) throws UnknownHostException {
+    public @NotNull Future<Void> connectAsync(@NotNull String hostName, final int port, @NotNull DNSServerProvider provider) throws UnknownHostException {
         final DNSResolver resolver = new DNSResolver(service, provider);
         final Future<?> f[] = (Future<?>[]) Array.newInstance(Future.class, 1);
         final FutureImpl<Void> future = createFuture(new Procedure() {
@@ -228,7 +229,7 @@ public abstract class Socket implements AutoCloseable {
      * @param bytes maximum number of bytes to read
      * @return a {@link Future} representing this task
      */
-    public abstract Future<Long> receiveAsync(ByteBuf data, int bytes);
+    public abstract @NotNull Future<Long> receiveAsync(ByteBuf data, int bytes);
 
     /**
      * Sends some data stored in the {@link ByteBuf} {@code data}, starting from its
@@ -240,7 +241,7 @@ public abstract class Socket implements AutoCloseable {
      * @return bytes sent
      * @throws InterruptedException If there's an interruption while sending the data
      */
-    public long send(ByteBuf data, int bytes) throws InterruptedException {
+    public long send(@NotNull ByteBuf data, int bytes) throws InterruptedException {
         checkSocketCreated("send");
         ByteBuf buff = ByteBufAllocator.DEFAULT.buffer(bytes).retain();
         buff.writeBytes(data, 0, bytes);
@@ -260,7 +261,7 @@ public abstract class Socket implements AutoCloseable {
      * @param bytes number of bytes to send
      * @return a {@link Future} representing this task
      */
-    public Future<Void> sendAsync(ByteBuf data, final int bytes) {
+    public @NotNull Future<Void> sendAsync(ByteBuf data, final int bytes) {
         checkSocketCreated("sendAsync");
         final ByteBuf buff = ByteBufAllocator.DEFAULT.directBuffer(bytes).retain();
         buff.writeBytes(data, 0, bytes);
@@ -281,7 +282,7 @@ public abstract class Socket implements AutoCloseable {
      * @param data buffer with the data to be sent
      * @return a {@link Future} representing this task
      */
-    public Future<Void> sendAsync(ByteBuf data) {
+    public @NotNull Future<Void> sendAsync(@NotNull ByteBuf data) {
         return sendAsync(data, data.readableBytes());
     }
 
@@ -293,7 +294,7 @@ public abstract class Socket implements AutoCloseable {
      * @return number of bytes read
      * @throws Throwable If something bad happens while receiving the data
      */
-    public long receive(ByteBuf data) throws Throwable {
+    public long receive(@NotNull ByteBuf data) throws Throwable {
         return receive(data, data.writableBytes());
     }
 
@@ -305,7 +306,7 @@ public abstract class Socket implements AutoCloseable {
      * @param data {@link ByteBuf} where to write the data
      * @return a {@link Future} representing the task
      */
-    public Future<Long> receiveAsync(ByteBuf data) {
+    public @NotNull Future<Long> receiveAsync(@NotNull ByteBuf data) {
         return receiveAsync(data, data.writableBytes());
     }
 
@@ -318,7 +319,7 @@ public abstract class Socket implements AutoCloseable {
      * @return bytes sent
      * @throws InterruptedException if the send operation is interrupted
      */
-    public long send(ByteBuf data) throws InterruptedException {
+    public long send(@NotNull ByteBuf data) throws InterruptedException {
         return send(data, data.readableBytes());
     }
 
@@ -331,7 +332,7 @@ public abstract class Socket implements AutoCloseable {
      * @param data the {@link String} to send
      * @return a {@link Future} representing the task
      */
-    public Future<Void> sendAsync(String data) {
+    public @NotNull Future<Void> sendAsync(@NotNull String data) {
         return sendAsync(Unpooled.wrappedBuffer(data.getBytes()));
     }
 
@@ -344,7 +345,7 @@ public abstract class Socket implements AutoCloseable {
      * @return number of bytes sent
      * @throws InterruptedException if the send operation is interrupted
      */
-    public long send(String data) throws InterruptedException {
+    public long send(@NotNull String data) throws InterruptedException {
         return send(Unpooled.wrappedBuffer(data.getBytes()));
     }
 
@@ -357,7 +358,7 @@ public abstract class Socket implements AutoCloseable {
      * @return true if the option was set
      * @see ChannelOption
      */
-    public <T> boolean setOption(ChannelOption<T> type, T value) {
+    public <T> boolean setOption(@NotNull ChannelOption<T> type, @NotNull T value) {
         if(bootstrap != null)
             bootstrap.option(type, value);
         else

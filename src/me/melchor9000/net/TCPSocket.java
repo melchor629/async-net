@@ -24,6 +24,7 @@ import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -97,19 +98,20 @@ public class TCPSocket extends Socket {
     }
 
     @Override
-    public void bind(SocketAddress address) {
+    public void bind(@NotNull SocketAddress address) {
         super.bind(address);
         channelCreated();
     }
 
     @Override
-    public void connect(SocketAddress address) throws InterruptedException {
+    public void connect(@NotNull SocketAddress address) throws InterruptedException {
         super.connect(address);
         channelCreated();
     }
 
+    @NotNull
     @Override
-    public Future<Void> connectAsync(SocketAddress endpoint) {
+    public Future<Void> connectAsync(@NotNull SocketAddress endpoint) {
         return super.connectAsync(endpoint).whenDone(new Callback<Future<Void>>() {
             @Override
             public void call(Future<Void> arg) {
@@ -124,6 +126,7 @@ public class TCPSocket extends Socket {
         return isClosed ? -1 : receiveAsync(data, bytes).getValue();
     }
 
+    @NotNull
     @Override
     public Future<Long> receiveAsync(ByteBuf data, int bytes) {
         checkSocketCreated("receiveAsync");
@@ -258,6 +261,7 @@ public class TCPSocket extends Socket {
         readBuffer.release();
     }
 
+    @NotNull
     @Override
     public Future<Void> closeAsync() {
         return super.closeAsync().whenDone(new Callback<Future<Void>>() {

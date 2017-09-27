@@ -20,6 +20,7 @@ package me.melchor9000.net.resolver;
 
 import io.netty.buffer.ByteBuf;
 import me.melchor9000.net.DataNotRepresentsObject;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.Inet6Address;
 import java.net.UnknownHostException;
@@ -35,11 +36,11 @@ public class DNSAAAA extends DNSResourceData {
         super(data);
     }
 
-    public Inet6Address getAddress() {
+    public @NotNull Inet6Address getAddress() {
         return address;
     }
 
-    public void setAddress(Inet6Address address) {
+    public void setAddress(@NotNull Inet6Address address) {
         this.address = address;
     }
 
@@ -49,12 +50,12 @@ public class DNSAAAA extends DNSResourceData {
     }
 
     @Override
-    public void toByteBuf(ByteBuf buffer) {
+    public void toByteBuf(@NotNull ByteBuf buffer) {
         buffer.writeBytes(address.getAddress());
     }
 
     @Override
-    public void fromByteBuf(ByteBuf buffer) throws DataNotRepresentsObject {
+    public void fromByteBuf(@NotNull ByteBuf buffer) throws DataNotRepresentsObject {
         if(buffer.readableBytes() < 16) throw new DataNotRepresentsObject("DNS RR type AAAA doesn't contain data", buffer);
         byte addbin[] = new byte[byteBufSize()];
         buffer.readBytes(addbin);

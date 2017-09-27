@@ -1,6 +1,8 @@
 package me.melchor9000.net.resolver.serverLookup;
 
 import me.melchor9000.net.resolver.DNSResolver;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -10,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Allows a {@link DNSResolver}  to search for dns servers from the
- * System. But also allows to implement different ways to do it, appart
+ * Allows a {@link DNSResolver} to search for dns servers from the
+ * System. But also allows to implement different ways to do it, apart
  * from the default ones.
  * <br>
  * The basic implementations are:
@@ -34,13 +36,13 @@ public abstract class DNSServerProvider {
         } catch(UnknownHostException ignore) {}
     }
 
-    public DNSServerProvider(List<InetSocketAddress> defaultList) {
+    public DNSServerProvider(@NotNull List<InetSocketAddress> defaultList) {
         this.defaultList = defaultList;
     }
 
-    protected abstract List<InetSocketAddress> getList();
+    protected abstract @Nullable List<InetSocketAddress> getList();
 
-    public List<InetSocketAddress> get() {
+    public @NotNull List<InetSocketAddress> get() {
         List<InetSocketAddress> list = getList();
         if(list == null) return this.defaultList;
         else return list;

@@ -20,6 +20,8 @@ package me.melchor9000.net;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +53,7 @@ public class IOService {
      * Executes the block of code in the event's loop Thread
      * @param block block of code
      */
-    public void post(final Procedure block) {
+    public void post(final @NotNull Procedure block) {
         group.submit(new Runnable() {
             @Override
             public void run() {
@@ -67,7 +69,7 @@ public class IOService {
      * @param milliseconds milliseconds of delay to execute the code
      * @return a {@link Future} for the scheduled task
      */
-    public Future<?> schedule(final Procedure block, long milliseconds) {
+    public @NotNull Future<?> schedule(final @NotNull Procedure block, long milliseconds) {
         return new NettyFuture<>(group.schedule(new Runnable() {
             @Override
             public void run() {
@@ -90,7 +92,7 @@ public class IOService {
      * this inside a {@link Callback}.
      * @return {@link Future} or null if is cancelled already
      */
-    public Future<?> cancelAsync() {
+    public @Nullable Future<?> cancelAsync() {
         if(!group.isShutdown()) {
             return new NettyFuture<>(group.shutdownGracefully(), this);
         }

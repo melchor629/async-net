@@ -57,6 +57,7 @@ import java.io.InputStream;
  *     constructor ({@link #SSLSocket(IOService, SSLSocketConfigurator)}. In the implementation
  *     of the {@link SSLSocketConfigurator} you can use this code (it's written in Kotlin but
  *     you will catch it easily):
+ * </p>
  *     <pre><code>
  *     //certFile is an File object. In Kotlin you can open an InputStream easily from a File.
  *     //You can try with new FileInputStream(certFile) in plain Java, for example.
@@ -77,6 +78,7 @@ import java.io.InputStream;
  *     builder.keyManager(kmf)
  *     builder.trustManager(tmf)
  *     </code></pre>
+ * <p>
  *     What this code does is create a pair of KeyStores using the default certificates from Android
  *     and adding to it your custom certificate. Also this method allows you to insert more public
  *     certificates, as long as you add them using {@code setCertificateEntry(String, Certificate)}

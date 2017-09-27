@@ -20,6 +20,32 @@ Maven
 
 You can always compile by hand and import the `.jar` into your project. To compile, you will need [Gradle][1] and [netty][2] library.
 
+## About the library and it's idea
+To use this library, you need to follow this simple rules:
+
+ - Every socket needs a Thread to work on. That's why every socket (and the DNS resolver) needs an `IOService`.
+ - The acceptor (aka servers) can run in different Threads from the Sockets.
+ - Every asynchronous operation can be converted to synchronous.
+ - Every asynchronous operation return `Future`s.
+ - Synchronous operations can throw Exceptions.
+
+So, to understand how to use the library, I will give you a quick explanation of every important class:
+
+ - `IOService`: Creates one or more threads (it's up to you) and some loops that listen for events
+ that can occur and notify to the correspondent Sockets or listeners about this event
+ - `Future`: The asynchronous tasks sometimes return a value, or in some cases you just want to wait something to complete.
+ And here comes the Futures. Allows you to execute some code when the task is done (successfully or not)
+ or wait for it (synchronously).
+ - `Socket`: Abstract class where you can manage a Socket, send and receive data, connect to servers, wait for close.
+ Read carefully its documentation, has a lot of functions. Also, watch for TCPSocket and UDPSocket, its implementations.
+ - `Acceptor`: Helps you to make a server. In general a Server has two components: the socket that accept client sockets
+ and client sockets. The acceptor only accepts connections and gives you the client sockets.
+ - `SSL`: Also there's an implementation of SSL/TLS sockets and acceptors over TCPSocket and TCPAcceptor. Note that this
+ implementations don't handle well with Android, but there's workarounds annotated in their documentations.
+ - `DNSResolver`: As its name indicates, resolves domains into IPv4 and/or IPv6. Internally uses an UDPSocket. And the
+ DNS servers is obtained through different methods that one of them must be provided. See its documentation for info
+ about it.
+
 ## Examples
 You can see [TestTCP.java][4], [TestUDP.java][5], [TestTCPServer.java][6] [TestSSL.java][7] as examples.
 

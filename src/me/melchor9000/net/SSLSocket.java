@@ -50,6 +50,36 @@ import java.io.InputStream;
  * <p>
  *     See {@link TCPSocket} and {@link Socket} for the whole API
  * </p>
+ * <p>
+ *     <b>Note for use in Android.</b> This library cannot handle correctly SSL Sockets
+ *     on Android, but there's an easy workaround to it. First you need to use the fourth
+ *     constructor ({@link #SSLSocket(IOService, SSLSocketConfigurator)}. In the implementation
+ *     of the {@link SSLSocketConfigurator} you can use this code (it's written in Kotlin but
+ *     you will catch it easily):
+ *     <pre><code>
+ *     //certFile is an File object. In Kotlin you can open an InputStream easily from a File.
+ *     //You can try with new FileInputStream(certFile) in plain Java, for example.
+ *     val cert = CertificateFactory.getInstance("X.509").generateCertificate(certFile.inputStream())
+ *
+ *     val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+ *     val ks = KeyStore.getInstance("AndroidKeyStore")
+ *     ks.load(null)
+ *     ks.setCertificateEntry("some-name", cert)
+ *     kmf.init(ks, null)
+ *
+ *     val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+ *     val ts = KeyStore.getInstance("AndroidKeyStore")
+ *     ts.load(null)
+ *     ts.setCertificateEntry("some-name", cert)
+ *     tmf.init(ts)
+ *
+ *     builder.keyManager(kmf)
+ *     builder.trustManager(tmf)
+ *     </code></pre>
+ *     What this code does is create a pair of KeyStores using the default certificates from Android
+ *     and adding to it your custom certificate. Also this method allows you to insert more public
+ *     certificates, as long as you add them using {@code setCertificateEntry(String, Certificate)}
+ * </p>
  */
 public class SSLSocket extends TCPSocket {
 
@@ -159,5 +189,16 @@ public class SSLSocket extends TCPSocket {
         super(acceptor, socket);
         SslContext ctx = (passwd != null ? SslContextBuilder.forServer(publicKey, privateKey, passwd) : SslContextBuilder.forServer(publicKey, privateKey)).build();
         socket.pipeline().addBefore("readManager", "ssl", ctx.newHandler(socket.alloc()));
+    }
+
+    SSLSocket(SSLAcceptor acceptor, SocketChannel socket, SSLAcceptorConfigurator configurator) throws SSLException {
+        super(acceptor, socket);
+        SslContextBuilder builder = SslContextBuilder.forServer(configurator.getFactory());
+        configurator.configure(builder);
+        SslHandler handler = builder.build().newHandler(socket.alloc());
+        SSLParameters p = handler.engine().getSSLParameters();
+        SSLParameters np = configurator.changeParameters(p);
+        if(np != null) handler.engine().setSSLParameters(np);
+        socket.pipeline().addBefore("readManager", "ssl", handler);
     }
 }

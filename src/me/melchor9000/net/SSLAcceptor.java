@@ -40,6 +40,15 @@ import java.io.InputStream;
  *     documentation will be found in {@link TCPAcceptor} and {@link Acceptor}.
  *     All sockets will be of type {@link SSLSocket}.
  * </p>
+ * <p>
+ *     <b>Note for Android:</b> An SSL Acceptor in Android will fail its creation.
+ *     In general, use a Server in an Android app could lead into problems. If you
+ *     need one, your solution could be create the acceptor using these constructors
+ *     {@link #SSLAcceptor(IOService, SSLAcceptorConfigurator)} or
+ *     {@link #SSLAcceptor(IOService, IOService, SSLAcceptorConfigurator)}. See
+ *     {@link SSLSocket} documentation to give you a clue that could help you to make
+ *     the custom configuration for Android.
+ * </p>
  */
 public class SSLAcceptor extends TCPAcceptor {
     private File publicKeyFile;
@@ -47,6 +56,7 @@ public class SSLAcceptor extends TCPAcceptor {
     private InputStream publicKeyInputStream;
     private InputStream privateKeyInputStream;
     private String passwd;
+    private SSLAcceptorConfigurator configurator;
 
     /**
      * Creates a SSL acceptor for server applications. Uses a public and private certificates,
@@ -160,12 +170,37 @@ public class SSLAcceptor extends TCPAcceptor {
         this.passwd = password;
     }
 
+    /**
+     * Creates a SSL acceptor for server applications. Uses custom configuration for the {@link SSLSocket}
+     * done by the {@link SSLAcceptorConfigurator} implementation.
+     * @param service {@link IOService} for the acceptor and the sockets
+     * @param configurator Allows custom configuration for the {@link SSLSocket}{@code s}
+     */
+    public SSLAcceptor(IOService service, SSLAcceptorConfigurator configurator) {
+        super(service);
+        this.configurator = configurator;
+    }
+
+    /**
+     * Creates a SSL acceptor for server applications. Uses custom configuration for the {@link SSLSocket}
+     * done by the {@link SSLAcceptorConfigurator} implementation.
+     * @param service {@link IOService} for the acceptor
+     * @param worker {@link IOService} for the sockets
+     * @param configurator Allows custom configuration for the {@link SSLSocket}{@code s}
+     */
+    public SSLAcceptor(IOService service, IOService worker, SSLAcceptorConfigurator configurator) {
+        super(service, worker);
+        this.configurator = configurator;
+    }
+
     @Override
     protected TCPSocket createSocketForImplementation(SocketChannel ch) throws IOException {
         if(publicKeyFile != null) {
             return new SSLSocket(this, ch, this.publicKeyFile, this.privateKeyFile, this.passwd);
         } else if(publicKeyInputStream != null) {
             return new SSLSocket(this, ch, this.publicKeyInputStream, this.privateKeyInputStream, this.passwd);
+        } else if(configurator != null) {
+            return new SSLSocket(this, ch, this.configurator);
         } else {
             throw new IllegalStateException("Unreachable code, reached :(");
         }

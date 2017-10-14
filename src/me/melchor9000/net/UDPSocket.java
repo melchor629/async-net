@@ -30,7 +30,6 @@ import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.ProtocolFamily;
 import java.net.SocketAddress;
-import java.net.StandardProtocolFamily;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -79,14 +78,14 @@ public class UDPSocket extends Socket {
      * @param service {@link IOService} to attach this socket
      */
     public UDPSocket(IOService service) {
-        this(service, StandardProtocolFamily.INET);
+        this(service, null);
     }
 
     /**
      * Create a UDP Socket
      * @param service {@link IOService} to attach this socket
      * @param ip {@link ProtocolFamily}
-     * @see StandardProtocolFamily
+     * @see java.net.StandardProtocolFamily
      */
     public UDPSocket(IOService service, ProtocolFamily ip) {
         super(service); //TODO protocol family

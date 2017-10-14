@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class AndroidServerProvider extends DNSServerProvider {
@@ -46,7 +47,7 @@ public class AndroidServerProvider extends DNSServerProvider {
     }
 
     private boolean hasDefaultRoute(Object linkProperties) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        for(Object route : (Object[]) linkProperties.getClass().getMethod("getRoutes").invoke(linkProperties)) {
+        for(Object route : (Collection) linkProperties.getClass().getMethod("getRoutes").invoke(linkProperties)) {
             if((Boolean) route.getClass().getMethod("isDefaultRoute").invoke(route)) {
                 return true;
             }

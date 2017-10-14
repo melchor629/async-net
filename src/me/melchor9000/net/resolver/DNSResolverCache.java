@@ -103,7 +103,11 @@ public class DNSResolverCache {
 
         private Entry(Value value, long ttl) {
             this.value = value;
-            endLive = (System.currentTimeMillis() / 1000 + ttl) * 1000;
+            if(ttl != 0) {
+                endLive = (System.currentTimeMillis() / 1000 + ttl) * 1000;
+            } else {
+                endLive = Long.MAX_VALUE;
+            }
         }
 
         private boolean isValid() {
